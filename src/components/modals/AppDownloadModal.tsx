@@ -27,21 +27,18 @@ export const AppDownloadModal: React.FC<AppDownloadModalProps> = ({ isOpen, onCl
   const handleDownloadApk = () => {
     setDownloading(true);
     setTimeout(() => {
-      // Create and trigger simulated apk file download
-      const element = document.createElement('a');
-      const file = new Blob([
-        `Roblox & Dev Store Platform Android Application Installer Package\nVersion: 1.0.0\nPackage: com.robloxdev.store\nArchitecture: Universal Android APK`
-      ], { type: 'application/vnd.android.package-archive' });
-      element.href = URL.createObjectURL(file);
-      element.download = 'RobloxDevStore-v1.0.0.apk';
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element);
+      const link = document.createElement('a');
+      link.href = '/RobloxDevStore-v1.0.0.apk';
+      link.setAttribute('download', 'RobloxDevStore-v1.0.0.apk');
+      link.setAttribute('target', '_blank');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
       setDownloading(false);
       setDownloadSuccess(true);
-      setTimeout(() => setDownloadSuccess(false), 4000);
-    }, 1200);
+      setTimeout(() => setDownloadSuccess(false), 5000);
+    }, 400);
   };
 
   return (
@@ -93,24 +90,28 @@ export const AppDownloadModal: React.FC<AppDownloadModalProps> = ({ isOpen, onCl
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-sm text-slate-900 dark:text-white">تنزيل ملف APK للأندرويد</span>
+                  <span className="font-bold text-sm text-slate-900 dark:text-white">تنزيل حزمة APK الأصلية (Android)</span>
                   <span className="px-2 py-0.2 rounded text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold">
-                    v1.0.0 APK
+                    7.3 MB • APK
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  تثبيت مباشر لجميع هواتف Android (سامسونج، شاومي، هواوي وغيرها)
+                  حزمة تثبيت مباشرة متوافقة مع جميع هواتف الأندرويد (Samsung, Xiaomi, Huawei, إلخ)
                 </p>
               </div>
 
-              <button
-                onClick={handleDownloadApk}
-                disabled={downloading}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-md shadow-rose-600/30 transition-all flex items-center justify-center gap-2 shrink-0"
+              <a
+                href="/RobloxDevStore-v1.0.0.apk"
+                download="RobloxDevStore-v1.0.0.apk"
+                onClick={() => {
+                  setDownloadSuccess(true);
+                  setTimeout(() => setDownloadSuccess(false), 5000);
+                }}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-md shadow-rose-600/30 transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
               >
                 <Download className="w-4 h-4" />
-                <span>{downloading ? 'جارٍ التنزيل...' : 'تحميل APK مجاناً'}</span>
-              </button>
+                <span>تحميل ملف APK</span>
+              </a>
             </div>
 
             {/* Option 2: Live Smartphone Simulator */}
