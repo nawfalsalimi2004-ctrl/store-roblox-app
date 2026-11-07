@@ -128,10 +128,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenProduct, o
                 <h3 className="text-base sm:text-xl font-black text-slate-900 dark:text-white">
                   حمّل تطبيق المنصة الأصلي للأندرويد (ملف APK مباشر)
                 </h3>
-                <span className="px-2 py-0.5 rounded bg-emerald-500 text-white text-[10px] font-bold">7.3 MB</span>
+                <span className="px-2 py-0.5 rounded bg-emerald-500 text-white text-[10px] font-bold">2.8 MB • ميزات VIP حصرية</span>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400 max-w-lg leading-relaxed">
-                تنزيل مباشر وسريع من موقعنا بدون أي وسيط أو تطبيقات خارجية. يتضمن شاشة بداية، تسجيل دخول، صفحة ترحيب وشارة التوثيق المعتمدة.
+                تنزيل مباشر وسريع من موقعنا مخصص لـ developer-blush-psi.vercel.app، يحتوي على مكافآت Robux يومية، مسرّع ألعاب روبلوكس، وأكواد سرية لا توجد في موقع الويب.
               </p>
             </div>
           </div>

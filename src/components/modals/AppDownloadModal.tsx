@@ -92,11 +92,11 @@ export const AppDownloadModal: React.FC<AppDownloadModalProps> = ({ isOpen, onCl
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-sm text-slate-900 dark:text-white">تنزيل حزمة APK الأصلية (Android)</span>
                   <span className="px-2 py-0.2 rounded text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold">
-                    7.3 MB • APK
+                    2.8 MB • APK مباشر
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  حزمة تثبيت مباشرة متوافقة مع جميع هواتف الأندرويد (Samsung, Xiaomi, Huawei, إلخ)
+                  تطبيق رسمي مخصص لـ developer-blush-psi.vercel.app يحتوي على ميزات VIP حصرية لا توجد بالموقع
                 </p>
               </div>
 
@@ -141,13 +141,14 @@ export const AppDownloadModal: React.FC<AppDownloadModalProps> = ({ isOpen, onCl
           <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-1.5">
             <div className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span>ميزات نسخة التطبيق:</span>
+              <span>ميزات حصرية للتطبيق (غير متوفرة في الموقع):</span>
             </div>
             <ul className="space-y-1 text-[11px] list-disc list-inside">
-              <li>شاشة بداية Splash Screen متحركة وتفاعلية</li>
-              <li>صفحة ترحيب واستعراض للمزايا بعد تسجيل الدخول</li>
-              <li>ظهور شارة المطور الموثق (Verified Dev ⚡) في كل مكان</li>
-              <li>شريط تنقل سفلي خاص بالهواتف للوصول السريع</li>
+              <li>صندوق مكافآت Robux وهدايا يومية مجانية كل 24 ساعة</li>
+              <li>مسرّع ألعاب روبلوكس (Game Booster) وتوفير 65% من استهلاك بيانات الهاتف</li>
+              <li>خزينة الأكواد الحصرية وأكواد الهدايا السرية القابلة للنسخ بنقرة واحدة</li>
+              <li>إشعارات فورية مباشرة بالأكواد الجديدة وتحديثات المطورين</li>
+              <li>شارة عضوية VIP التطبيق الذهبية وشارة المطور الموثق (Verified Dev ⚡)</li>
             </ul>
           </div>
         </div>

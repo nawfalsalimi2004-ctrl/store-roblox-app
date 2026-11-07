@@ -17,7 +17,16 @@ import {
   Download,
   X,
   ExternalLink,
-  ChevronLeft
+  ChevronLeft,
+  Gift,
+  Zap,
+  Bell,
+  Award,
+  Copy,
+  Check,
+  Smartphone,
+  Wifi,
+  Gauge
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useStore } from '../../context/StoreContext';
@@ -45,13 +54,61 @@ export const MobileAppExperience: React.FC<MobileAppExperienceProps> = ({ onClos
 
   const [splashProgress, setSplashProgress] = useState(0);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const [activeTab, setActiveTab] = useState<'home' | 'roblox' | 'store' | 'articles' | 'friends' | 'profile'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'vip' | 'roblox' | 'store' | 'articles' | 'friends' | 'profile'>('home');
 
   // Form states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [authError, setAuthError] = useState('');
+
+  // Exclusive App States (ميزات التطبيق الحصرية غير المتوفرة بالموقع)
+  const [dailyClaimed, setDailyClaimed] = useState<boolean>(() => {
+    return localStorage.getItem('app_daily_claimed_date') === new Date().toISOString().split('T')[0];
+  });
+  const [appRobuxBalance, setAppRobuxBalance] = useState<number>(() => {
+    return Number(localStorage.getItem('app_robux_balance') || '150');
+  });
+  const [gameBoosterActive, setGameBoosterActive] = useState<boolean>(() => {
+    return localStorage.getItem('app_game_booster') === 'true';
+  });
+  const [pushNotificationsActive, setPushNotificationsActive] = useState<boolean>(() => {
+    return localStorage.getItem('app_push_notifications') !== 'false';
+  });
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [claimSuccessMessage, setClaimSuccessMessage] = useState<string>('');
+
+  const handleClaimDailyReward = () => {
+    if (dailyClaimed) return;
+    const reward = 50;
+    const newBal = appRobuxBalance + reward;
+    setAppRobuxBalance(newBal);
+    setDailyClaimed(true);
+    localStorage.setItem('app_robux_balance', newBal.toString());
+    localStorage.setItem('app_daily_claimed_date', new Date().toISOString().split('T')[0]);
+    setClaimSuccessMessage(`🎉 تهانينا! استلمت ${reward} Robux افتراضي وكود VIP حصري للتطبيق!`);
+    setTimeout(() => setClaimSuccessMessage(''), 5000);
+  };
+
+  const handleToggleBooster = () => {
+    const nextState = !gameBoosterActive;
+    setGameBoosterActive(nextState);
+    localStorage.setItem('app_game_booster', nextState.toString());
+  };
+
+  const handleToggleNotifications = () => {
+    const nextState = !pushNotificationsActive;
+    setPushNotificationsActive(nextState);
+    localStorage.setItem('app_push_notifications', nextState.toString());
+  };
+
+  const handleCopyCode = (code: string) => {
+    if (navigator?.clipboard) {
+      navigator.clipboard.writeText(code).catch(() => {});
+    }
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2500);
+  };
 
   // Splash Screen progress timer
   useEffect(() => {
@@ -407,14 +464,44 @@ export const MobileAppExperience: React.FC<MobileAppExperienceProps> = ({ onClos
             {/* TAB: Home */}
             {activeTab === 'home' && (
               <div className="space-y-4 animate-fadeIn">
+                {/* Exclusive App VIP Feature Pill */}
+                <button
+                  onClick={() => setActiveTab('vip')}
+                  className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-purple-500/20 border border-amber-500/40 flex items-center justify-between text-right shadow-lg active:scale-98 transition-transform"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-rose-500 text-slate-950 flex items-center justify-center font-bold shadow-md shadow-amber-500/30">
+                      <Gift className="w-5 h-5 text-white animate-bounce" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <h4 className="font-bold text-xs text-white">ميزات التطبيق الحصرية (VIP)</h4>
+                        <span className="px-1.5 py-0.2 rounded bg-amber-400 text-slate-950 font-black text-[9px]">
+                          حصرية بالتطبيق
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-amber-200/90 mt-0.5">
+                        هدايا يومية مجانية، مسرّع ألعاب روبلوكس، وأكواد سرية لا توجد بالموقع!
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronLeft className="w-4 h-4 text-amber-400 shrink-0" />
+                </button>
+
                 {/* Hero Card */}
                 <div className="p-5 rounded-2xl bg-gradient-to-r from-rose-900/60 to-slate-900 border border-rose-500/30 space-y-2">
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-bold">
-                    تطبيق روبلوكس الرسمي
-                  </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-bold">
+                      تطبيق روبلوكس الرسمي
+                    </span>
+                    <span className="text-[10px] text-emerald-400 font-mono font-bold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                      متصل بالتطبيق
+                    </span>
+                  </div>
                   <h3 className="text-base font-black text-white">استكشف ألعاب المطورين وتحديثاتها الحية</h3>
                   <p className="text-[11px] text-slate-300 leading-relaxed">
-                    شارك مع المطورين المعتمدين وجرّب أقوى الألعاب والسكربتات.
+                    شارك مع المطورين المعتمدين وجرّب أقوى الألعاب والسكربتات واستفد من ميزات التطبيق.
                   </p>
                 </div>
 
@@ -499,6 +586,181 @@ export const MobileAppExperience: React.FC<MobileAppExperienceProps> = ({ onClos
                       </div>
                     ))
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* TAB: VIP Perks (ميزات التطبيق الحصرية غير المتوفرة في الموقع) */}
+            {activeTab === 'vip' && (
+              <div className="space-y-4 animate-fadeIn">
+                {/* VIP Header Banner */}
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-600 via-rose-600 to-purple-600 text-white shadow-xl shadow-amber-600/20 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="px-2 py-0.5 rounded-full bg-black/30 backdrop-blur-md text-[10px] font-bold text-amber-300">
+                      ⭐ ميزات حصرية لمستخدمي التطبيق فقط
+                    </span>
+                    <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-lg font-bold">
+                      VIP Pass
+                    </span>
+                  </div>
+                  <h3 className="text-base font-black">مزايا حصرية لا تظهر في موقع الويب</h3>
+                  <p className="text-[11px] text-white/90 leading-relaxed">
+                    استمتع بمكافآت روبلوكس اليومية، تفعيل وضع تسريع الألعاب، وتنبيهات الأكواد الفورية.
+                  </p>
+                </div>
+
+                {claimSuccessMessage && (
+                  <div className="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold text-center animate-fadeIn">
+                    {claimSuccessMessage}
+                  </div>
+                )}
+
+                {/* 1. Daily Robux Drop & Rewards Card */}
+                <div className="p-4 rounded-2xl bg-slate-900 border border-amber-500/30 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                        <Gift className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-xs text-white">صندوق الهدايا اليومي (Daily Drop)</h4>
+                        <p className="text-[10px] text-slate-400">خاص بمستخدمي التطبيق كل 24 ساعة</p>
+                      </div>
+                    </div>
+                    <div className="text-left font-mono">
+                      <span className="text-xs font-black text-amber-400">{appRobuxBalance} R$</span>
+                      <span className="block text-[9px] text-slate-400">رصيدك الافتراضي</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-bold text-white block">+50 Robux افتراضي</span>
+                      <span className="text-[10px] text-slate-400">مع كود خصم 30% للألعاب</span>
+                    </div>
+
+                    <button
+                      onClick={handleClaimDailyReward}
+                      disabled={dailyClaimed}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md ${
+                        dailyClaimed
+                          ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                          : 'bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-slate-950 font-black shadow-amber-500/25 active:scale-95'
+                      }`}
+                    >
+                      {dailyClaimed ? 'تم الاستلام اليوم ✓' : 'مطالبة بالمكافأة 🎁'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* 2. Roblox Game Booster & Ping Saver */}
+                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+                        gameBoosterActive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'
+                      }`}>
+                        <Zap className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-xs text-white">مسرّع ألعاب روبلوكس (Game Booster)</h4>
+                        <p className="text-[10px] text-slate-400">تقليل البينغ وتوفير 65% من استهلاك البيانات</p>
+                      </div>
+                    </div>
+
+                    {/* Toggle Switch */}
+                    <button
+                      onClick={handleToggleBooster}
+                      className={`w-12 h-6 rounded-full transition-colors p-1 flex items-center ${
+                        gameBoosterActive ? 'bg-emerald-500 justify-end' : 'bg-slate-800 justify-start'
+                      }`}
+                    >
+                      <div className="w-4 h-4 rounded-full bg-white shadow-sm"></div>
+                    </button>
+                  </div>
+
+                  {gameBoosterActive && (
+                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800 text-center animate-fadeIn font-mono">
+                      <div className="p-2 rounded-xl bg-slate-950 border border-slate-800">
+                        <span className="block text-xs font-bold text-emerald-400">14 ms</span>
+                        <span className="text-[9px] text-slate-400">Server Ping</span>
+                      </div>
+                      <div className="p-2 rounded-xl bg-slate-950 border border-slate-800">
+                        <span className="block text-xs font-bold text-rose-400">60 FPS</span>
+                        <span className="text-[9px] text-slate-400">Frame Lock</span>
+                      </div>
+                      <div className="p-2 rounded-xl bg-slate-950 border border-slate-800">
+                        <span className="block text-xs font-bold text-indigo-400">-65%</span>
+                        <span className="text-[9px] text-slate-400">Data Saved</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Exclusive App Promo Codes Vault */}
+                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                      <Award className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-xs text-white">خزينة الأكواد الحصرية (App Vault)</h4>
+                      <p className="text-[10px] text-slate-400">أكواد سرية لألعاب روبلوكس مخصصة للتطبيق</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    {[
+                      { code: 'ROBLOX-APP-VIP26', desc: 'شارة VIP مجانية + سلاح حصري في الألعاب' },
+                      { code: 'BOOSTER-SPEED-99', desc: 'مضاعفة سرعة الترقية وXP بنسبة 200%' },
+                      { code: 'DEV-OFFER-50X', desc: 'خصم 50% على جميع أدوات المتجر' }
+                    ].map((item) => (
+                      <div key={item.code} className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+                        <div>
+                          <span className="font-mono text-xs font-bold text-rose-400">{item.code}</span>
+                          <p className="text-[10px] text-slate-400">{item.desc}</p>
+                        </div>
+                        <button
+                          onClick={() => handleCopyCode(item.code)}
+                          className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold flex items-center gap-1 transition-colors"
+                        >
+                          {copiedCode === item.code ? (
+                            <>
+                              <Check className="w-3 h-3 text-emerald-400" />
+                              <span className="text-emerald-400">تم النسخ</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3" />
+                              <span>نسخ</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 4. Push Notifications Toggle */}
+                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
+                      <Bell className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-xs text-white">إشعارات الأكواد الفورية</h4>
+                      <p className="text-[10px] text-slate-400">تنبيه فوري عند نزول كود جديد لروبلوكس</p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleToggleNotifications}
+                    className={`w-12 h-6 rounded-full transition-colors p-1 flex items-center ${
+                      pushNotificationsActive ? 'bg-blue-600 justify-end' : 'bg-slate-800 justify-start'
+                    }`}
+                  >
+                    <div className="w-4 h-4 rounded-full bg-white shadow-sm"></div>
+                  </button>
                 </div>
               </div>
             )}
@@ -623,6 +885,14 @@ export const MobileAppExperience: React.FC<MobileAppExperienceProps> = ({ onClos
                         مستخدم عادي
                       </span>
                     )}
+
+                    {/* App VIP Badge for All App Users */}
+                    <div className="block mt-2">
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-rose-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-bold">
+                        <Gift className="w-3.5 h-3.5 text-amber-400" />
+                        <span>عضوية VIP حصرية بالتطبيق • رصيد: {appRobuxBalance} R$</span>
+                      </div>
+                    </div>
                   </div>
 
                   <p className="text-[11px] text-slate-400 leading-relaxed max-w-xs mx-auto">
@@ -634,21 +904,37 @@ export const MobileAppExperience: React.FC<MobileAppExperienceProps> = ({ onClos
           </div>
 
           {/* Bottom Mobile Navigation Bar (NO ADMIN IN APP) */}
-          <div className="bg-slate-900 border-t border-slate-800 px-3 py-2 flex items-center justify-around text-[10px] font-bold text-slate-400">
+          <div className="bg-slate-900 border-t border-slate-800 px-2 py-2 flex items-center justify-around text-[10px] font-bold text-slate-400">
             <button
               onClick={() => setActiveTab('home')}
               className={`flex flex-col items-center gap-1 transition-colors ${
-                activeTab === 'home' ? 'text-rose-500' : 'hover:text-white'
+                activeTab === 'home' ? 'text-rose-500 font-bold' : 'hover:text-white'
               }`}
             >
               <Sparkles className="w-4 h-4" />
               <span>الرئيسية</span>
             </button>
 
+            {/* Exclusive VIP App Perks Tab */}
+            <button
+              onClick={() => setActiveTab('vip')}
+              className={`flex flex-col items-center gap-1 transition-colors relative ${
+                activeTab === 'vip' ? 'text-amber-400 font-bold' : 'hover:text-white'
+              }`}
+            >
+              <div className="relative">
+                <Gift className="w-4 h-4 text-amber-400" />
+                {!dailyClaimed && (
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                )}
+              </div>
+              <span className="text-amber-400">VIP حصرية</span>
+            </button>
+
             <button
               onClick={() => setActiveTab('roblox')}
               className={`flex flex-col items-center gap-1 transition-colors ${
-                activeTab === 'roblox' ? 'text-rose-500' : 'hover:text-white'
+                activeTab === 'roblox' ? 'text-rose-500 font-bold' : 'hover:text-white'
               }`}
             >
               <Gamepad2 className="w-4 h-4" />
@@ -658,7 +944,7 @@ export const MobileAppExperience: React.FC<MobileAppExperienceProps> = ({ onClos
             <button
               onClick={() => setActiveTab('store')}
               className={`flex flex-col items-center gap-1 transition-colors ${
-                activeTab === 'store' ? 'text-rose-500' : 'hover:text-white'
+                activeTab === 'store' ? 'text-rose-500 font-bold' : 'hover:text-white'
               }`}
             >
               <ShoppingBag className="w-4 h-4" />
@@ -668,7 +954,7 @@ export const MobileAppExperience: React.FC<MobileAppExperienceProps> = ({ onClos
             <button
               onClick={() => setActiveTab('friends')}
               className={`flex flex-col items-center gap-1 transition-colors ${
-                activeTab === 'friends' ? 'text-rose-500' : 'hover:text-white'
+                activeTab === 'friends' ? 'text-rose-500 font-bold' : 'hover:text-white'
               }`}
             >
               <Users className="w-4 h-4" />
@@ -678,7 +964,7 @@ export const MobileAppExperience: React.FC<MobileAppExperienceProps> = ({ onClos
             <button
               onClick={() => setActiveTab('profile')}
               className={`flex flex-col items-center gap-1 transition-colors ${
-                activeTab === 'profile' ? 'text-rose-500' : 'hover:text-white'
+                activeTab === 'profile' ? 'text-rose-500 font-bold' : 'hover:text-white'
               }`}
             >
               <User className="w-4 h-4" />
