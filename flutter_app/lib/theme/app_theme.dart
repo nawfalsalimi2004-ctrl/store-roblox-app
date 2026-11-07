@@ -31,9 +31,8 @@ class AppTheme {
         primary: primaryRose,
         secondary: secondaryAmber,
         surface: darkCard,
-        background: darkBg,
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: darkCard,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -59,9 +58,8 @@ class AppTheme {
         primary: primaryRose,
         secondary: secondaryAmber,
         surface: lightCard,
-        background: lightBg,
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: lightCard,
         elevation: 0,
         shape: RoundedRectangleBorder(

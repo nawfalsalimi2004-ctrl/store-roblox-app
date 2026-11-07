@@ -86,32 +86,41 @@ export const AppDownloadModal: React.FC<AppDownloadModalProps> = ({ isOpen, onCl
 
           {/* Download Options */}
           <div className="space-y-3">
-            {/* Option 1: Direct APK Download */}
+            {/* Option 1: Direct Flutter APK Download from GitHub Release */}
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-sm text-slate-900 dark:text-white">تنزيل حزمة APK الأصلية (Android)</span>
+                  <span className="font-bold text-sm text-slate-900 dark:text-white">تطبيق Flutter الأصلي (APK Release)</span>
                   <span className="px-2 py-0.2 rounded text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold">
-                    2.8 MB • APK مباشر
+                    Flutter v1.0.0 • GitHub Release
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  تطبيق رسمي مخصص لـ developer-blush-psi.vercel.app يحتوي على ميزات VIP حصرية لا توجد بالموقع
+                  تطبيق فلاتر رسمي متكامل بميزات VIP وسيرفرات مسرعة بدون إعلانات وشارة المطور الموثق
                 </p>
               </div>
 
-              <a
-                href="/RobloxDevStore-v1.0.0.apk"
-                download="RobloxDevStore-v1.0.0.apk"
-                onClick={() => {
-                  setDownloadSuccess(true);
-                  setTimeout(() => setDownloadSuccess(false), 5000);
-                }}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-md shadow-rose-600/30 transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
-              >
-                <Download className="w-4 h-4" />
-                <span>تحميل ملف APK</span>
-              </a>
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <a
+                  href="https://github.com/nawfalsalimi2004-ctrl/store-roblox-app/releases/download/v1.0.0/RobloxDevStore-Flutter-v1.0.0.apk"
+                  download="RobloxDevStore-Flutter-v1.0.0.apk"
+                  onClick={() => {
+                    setDownloadSuccess(true);
+                    setTimeout(() => setDownloadSuccess(false), 5000);
+                  }}
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-md shadow-rose-600/30 transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>تنزيل APK من GitHub</span>
+                </a>
+                <a
+                  href="/RobloxDevStore-v1.0.0.apk"
+                  download="RobloxDevStore-v1.0.0.apk"
+                  className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
+                >
+                  <span>رابط بديل مباشر</span>
+                </a>
+              </div>
             </div>
 
             {/* Option 2: Live Smartphone Simulator */}

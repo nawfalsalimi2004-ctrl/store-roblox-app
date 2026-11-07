@@ -1,4 +1,16 @@
 {
+  "redirects": [
+    {
+      "source": "/RobloxDevStore-v1.0.0.apk",
+      "destination": "https://github.com/nawfalsalimi2004-ctrl/store-roblox-app/releases/download/v1.0.0/RobloxDevStore-v1.0.0.apk",
+      "permanent": false
+    },
+    {
+      "source": "/RobloxDevStore-Flutter-v1.0.0.apk",
+      "destination": "https://github.com/nawfalsalimi2004-ctrl/store-roblox-app/releases/download/v1.0.0/RobloxDevStore-Flutter-v1.0.0.apk",
+      "permanent": false
+    }
+  ],
   "headers": [
     {
       "source": "/RobloxDevStore-v1.0.0.apk",
