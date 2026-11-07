@@ -30,6 +30,8 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
 import { UserRole } from '../types';
+import { db, saveApiKeyToCloud, deleteApiKeyFromCloud, loadCloudApiKeys } from '../firebase/config';
+import { collection, onSnapshot } from 'firebase/firestore';
 
 interface ApiKeyItem {
   id: string;
@@ -84,12 +86,32 @@ const DEFAULT_API_KEYS: ApiKeyItem[] = [
 ];
 
 export const AdminDashboardPage: React.FC = () => {
-  const { users, currentUser, pendingApplications, updateUserRole, verifyDeveloperManual } = useAuth();
-  const { articles, products, deleteArticle, deleteProduct } = useStore();
+  const { users, currentUser, pendingApplications, updateUserRole, deleteUser, verifyDeveloperManual } = useAuth();
+  const { articles, products, addProduct, addArticle, deleteArticle, deleteProduct } = useStore();
 
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'products' | 'articles' | 'api-keys'>('overview');
   const [userSearch, setUserSearch] = useState('');
   const [actionNotice, setActionNotice] = useState('');
+
+  // Modals for creating products and articles directly from Admin Dashboard
+  const [isCreateProductModalOpen, setIsCreateProductModalOpen] = useState(false);
+  const [isCreateArticleModalOpen, setIsCreateArticleModalOpen] = useState(false);
+
+  // New Product form state
+  const [newProdTitle, setNewProdTitle] = useState('');
+  const [newProdCategory, setNewProdCategory] = useState<'ألعاب روبلوكس' | 'تطبيقات وبرامج' | 'سكربتات ونظم Luau' | 'نماذج وخرائط 3D' | 'واجهات مستخدم UI'>('ألعاب روبلوكس');
+  const [newProdType, setNewProdType] = useState<'roblox_game' | 'app' | 'script' | 'asset'>('roblox_game');
+  const [newProdPrice, setNewProdPrice] = useState('0');
+  const [newProdPlaceId, setNewProdPlaceId] = useState('');
+  const [newProdDesc, setNewProdDesc] = useState('');
+  const [newProdImage, setNewProdImage] = useState('https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800');
+
+  // New Article form state
+  const [newArtTitle, setNewArtTitle] = useState('');
+  const [newArtCategory, setNewArtCategory] = useState<'تطوير روبلوكس' | 'برمجة Luau' | 'شروحات تقنية' | 'أخبار الألعاب' | 'تصميم ثلاثي الأبعاد'>('تطوير روبلوكس');
+  const [newArtExcerpt, setNewArtExcerpt] = useState('');
+  const [newArtContent, setNewArtContent] = useState('');
+  const [newArtCover, setNewArtCover] = useState('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1000');
 
   // API Keys state
   const [apiKeys, setApiKeys] = useState<ApiKeyItem[]>(() => {
@@ -110,6 +132,30 @@ export const AdminDashboardPage: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('app_api_keys_v1', JSON.stringify(apiKeys));
   }, [apiKeys]);
+
+  // Real-time Firestore Cloud Sync for API Keys
+  useEffect(() => {
+    if (!db) {
+      loadCloudApiKeys().then(cloudKeys => {
+        if (cloudKeys.length > 0) setApiKeys(cloudKeys as ApiKeyItem[]);
+      });
+      return;
+    }
+
+    const unsub = onSnapshot(collection(db, 'api_keys'), (snapshot) => {
+      if (!snapshot.empty) {
+        const cloudKeys = snapshot.docs.map(doc => ({
+          ...doc.data(),
+          id: doc.id
+        })) as ApiKeyItem[];
+        setApiKeys(cloudKeys);
+      }
+    }, (err) => {
+      console.warn("Firestore api_keys listener:", err);
+    });
+
+    return () => unsub();
+  }, []);
 
   const generateRandomHex = (length: number) => {
     const chars = '0123456789abcdef';
@@ -150,15 +196,18 @@ export const AdminDashboardPage: React.FC = () => {
     setApiKeys([newKeyItem, ...apiKeys]);
     setNewlyCreatedKey(secret);
     setNewKeyName('');
-    showNotice(`تم إنشاء مفتاح API بنجاح: ${newKeyItem.name}`);
+    saveApiKeyToCloud(newKeyItem);
+    showNotice(`✅ تم إنشاء وحفظ مفتاح API في السحابة بنجاح: ${newKeyItem.name}`);
   };
 
   const handleToggleKeyStatus = (id: string) => {
     setApiKeys(apiKeys.map(k => {
       if (k.id === id) {
-        const nextStatus = k.status === 'active' ? 'revoked' : 'active';
-        showNotice(nextStatus === 'revoked' ? 'تم إبطال المفتاح' : 'تم إعادة تنشيط المفتاح');
-        return { ...k, status: nextStatus };
+        const nextStatus: 'active' | 'revoked' = k.status === 'active' ? 'revoked' : 'active';
+        const updated: ApiKeyItem = { ...k, status: nextStatus };
+        saveApiKeyToCloud(updated);
+        showNotice(nextStatus === 'revoked' ? 'تم إبطال المفتاح وحفظ الحالة' : 'تم إعادة تنشيط المفتاح وحفظ الحالة');
+        return updated;
       }
       return k;
     }));
@@ -166,7 +215,72 @@ export const AdminDashboardPage: React.FC = () => {
 
   const handleDeleteKey = (id: string) => {
     setApiKeys(apiKeys.filter(k => k.id !== id));
-    showNotice('تم حذف مفتاح API نهائياً.');
+    deleteApiKeyFromCloud(id);
+    showNotice('✅ تم حذف مفتاح API نهائياً من السحابة.');
+  };
+
+  const handleCreateProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProdTitle.trim()) {
+      showNotice('يرجى كتابة عنوان المنتج / اللعبة.');
+      return;
+    }
+
+    const priceNum = parseFloat(newProdPrice) || 0;
+    addProduct({
+      title: newProdTitle.trim(),
+      description: newProdDesc.trim() || 'لعبة وتجربة روبلوكس مميزة بمحتوى شيق وسيرفرات سريعة.',
+      detailedDescription: newProdDesc.trim(),
+      price: priceNum,
+      category: newProdCategory,
+      type: newProdType,
+      platform: 'Roblox',
+      image: newProdImage.trim() || 'https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800',
+      tags: ['Roblox', newProdCategory],
+      developerId: currentUser?.id || 'admin',
+      developerName: currentUser?.name || 'مشرف المنصة',
+      developerAvatar: currentUser?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+      version: '1.0.0',
+      robloxPlaceId: newProdPlaceId.trim(),
+      robloxGameUrl: newProdPlaceId.trim() ? `https://www.roblox.com/games/${newProdPlaceId.trim()}` : 'https://www.roblox.com'
+    });
+
+    setIsCreateProductModalOpen(false);
+    setNewProdTitle('');
+    setNewProdDesc('');
+    setNewProdPlaceId('');
+    showNotice('✅ تم حفظ ونشر المنتج / اللعبة في السحابة ومزامنته فورياً مع الموقع والتطبيق!');
+  };
+
+  const handleCreateArticle = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newArtTitle.trim() || !newArtContent.trim()) {
+      showNotice('يرجى كتابة عنوان المقال ومحتواه.');
+      return;
+    }
+
+    addArticle({
+      title: newArtTitle.trim(),
+      slug: newArtTitle.trim().toLowerCase().replace(/\s+/g, '-'),
+      excerpt: newArtExcerpt.trim() || newArtContent.slice(0, 120) + '...',
+      content: newArtContent.trim(),
+      coverImage: newArtCover.trim() || 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1000',
+      category: newArtCategory,
+      tags: ['Roblox', newArtCategory],
+      readTimeMinutes: Math.ceil(newArtContent.length / 500) || 4,
+      author: {
+        id: currentUser?.id || 'admin',
+        name: currentUser?.name || 'المشرف العام',
+        avatar: currentUser?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+        role: 'مشرف المنصة'
+      }
+    });
+
+    setIsCreateArticleModalOpen(false);
+    setNewArtTitle('');
+    setNewArtExcerpt('');
+    setNewArtContent('');
+    showNotice('✅ تم حفظ ونشر المقال في السحابة ومزامنته فورياً مع الموقع والتطبيق!');
   };
 
   const handleCopyKey = (id: string, text: string) => {
@@ -431,18 +545,36 @@ export const AdminDashboardPage: React.FC = () => {
                       </span>
                     </td>
                     <td className="py-3 px-3">
-                      <select
-                        value={user.role}
-                        onChange={(e) => {
-                          updateUserRole(user.id, e.target.value as UserRole);
-                          showNotice(`تم تحديث رتبة ${user.name} إلى ${e.target.value}!`);
-                        }}
-                        className="px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 text-white text-[11px] outline-none"
-                      >
-                        <option value="user">مستخدم عادي</option>
-                        <option value="developer">مطور روبلوكس</option>
-                        <option value="admin">مدير (أدمن)</option>
-                      </select>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={user.role}
+                          onChange={(e) => {
+                            const nextRole = e.target.value as UserRole;
+                            updateUserRole(user.id, nextRole);
+                            showNotice(`✅ تم تحديث رتبة ${user.name} إلى ${nextRole} وحفظها سحابياً في Firebase!`);
+                          }}
+                          className="px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 text-white text-[11px] outline-none"
+                        >
+                          <option value="user">مستخدم عادي</option>
+                          <option value="developer">مطور روبلوكس</option>
+                          <option value="admin">مدير (أدمن)</option>
+                        </select>
+
+                        {user.id !== currentUser?.id && (
+                          <button
+                            onClick={() => {
+                              if (window.confirm(`هل أنت متأكد من حذف حساب "${user.name}" (${user.email}) نهائياً من الموقع وتطبيق الهاتف وسحابة Firebase؟`)) {
+                                deleteUser(user.id);
+                                showNotice(`✅ تم حذف حساب ${user.name} بنجاح من الموقع والسحابة!`);
+                              }
+                            }}
+                            className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white transition-colors"
+                            title="حذف الحساب"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -455,11 +587,23 @@ export const AdminDashboardPage: React.FC = () => {
       {/* TAB 3: Products Management */}
       {activeTab === 'products' && (
         <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-white">إدارة المنتجات وألعاب روبلوكس ({products.length})</h3>
-            <span className="text-[11px] text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-              ⚡ متزامن مع تطبيق الهاتف و Firebase
-            </span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-base font-bold text-white">إدارة المنتجات وألعاب روبلوكس ({products.length})</h3>
+              <p className="text-xs text-slate-400 mt-0.5">كل تغيير، إضافة، أو حذف يُحفظ فورياً في سحابة Firebase وينعكس في التطبيق</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                ⚡ متزامن سحابياً
+              </span>
+              <button
+                onClick={() => setIsCreateProductModalOpen(true)}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white text-xs font-bold shadow-md shadow-rose-600/30 flex items-center gap-1.5 transition-all cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>إضافة لعبة / منتج جديد</span>
+              </button>
+            </div>
           </div>
           {products.length === 0 ? (
             <div className="p-10 text-center text-slate-400 text-xs">لا توجد منتجات أو ألعاب حالياً.</div>
@@ -505,16 +649,25 @@ export const AdminDashboardPage: React.FC = () => {
       {/* TAB 4: Articles Management */}
       {activeTab === 'articles' && (
         <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h3 className="text-base font-bold text-white">إدارة مقالات وشروحات المنصة ({articles.length})</h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                أي مقال يُنشر أو يُحذف هنا ينعكس فورياً في الموقع وتطبيق الهاتف عبر Firebase Firestore
+                أي مقال يُنشر أو يُحذف هنا يُحفظ فورياً في سحابة Firebase ويظهر في تطبيق الهاتف
               </p>
             </div>
-            <span className="text-[11px] text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-              ⚡ متزامن لحظياً
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                ⚡ متزامن لحظياً
+              </span>
+              <button
+                onClick={() => setIsCreateArticleModalOpen(true)}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-md shadow-emerald-600/30 flex items-center gap-1.5 transition-all cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>نشر مقال وشرح جديد</span>
+              </button>
+            </div>
           </div>
 
           {articles.length === 0 ? (
@@ -960,6 +1113,233 @@ async function fetchLiveUpdates() {
                 >
                   <Key className="w-4 h-4" />
                   <span>توليد المفتاح الآن</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* CREATE PRODUCT / GAME MODAL */}
+      {isCreateProductModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="max-w-lg w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div className="flex items-center gap-2">
+                <Gamepad2 className="w-5 h-5 text-rose-500" />
+                <h3 className="font-bold text-white text-base">إضافة ونشر لعبة أو منتج جديد</h3>
+              </div>
+              <button
+                onClick={() => setIsCreateProductModalOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateProduct} className="space-y-4 text-xs">
+              <div className="space-y-1">
+                <label className="text-slate-300 font-semibold">عنوان اللعبة / المنتج</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="مثال: حرب الساحات التكتيكية (Arena Strike)"
+                  value={newProdTitle}
+                  onChange={(e) => setNewProdTitle(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 outline-none focus:border-rose-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-slate-300 font-semibold">التصنيف</label>
+                  <select
+                    value={newProdCategory}
+                    onChange={(e) => setNewProdCategory(e.target.value as any)}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-none focus:border-rose-500"
+                  >
+                    <option value="ألعاب روبلوكس">ألعاب روبلوكس</option>
+                    <option value="تطبيقات وبرامج">تطبيقات وبرامج</option>
+                    <option value="سكربتات ونظم Luau">سكربتات ونظم Luau</option>
+                    <option value="نماذج وخرائط 3D">نماذج وخرائط 3D</option>
+                    <option value="واجهات مستخدم UI">واجهات مستخدم UI</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-slate-300 font-semibold">النوع</label>
+                  <select
+                    value={newProdType}
+                    onChange={(e) => setNewProdType(e.target.value as any)}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-none focus:border-rose-500"
+                  >
+                    <option value="roblox_game">لعبة روبلوكس</option>
+                    <option value="app">تطبيق / برنامج</option>
+                    <option value="script">سكربت Luau</option>
+                    <option value="asset">أصل / نموذج 3D</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-slate-300 font-semibold">Roblox Place ID</label>
+                  <input
+                    type="text"
+                    placeholder="مثال: 15482910482"
+                    value={newProdPlaceId}
+                    onChange={(e) => setNewProdPlaceId(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white font-mono placeholder-slate-500 outline-none focus:border-rose-500"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-slate-300 font-semibold">السعر بالدولار (0 = مجاناً)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={newProdPrice}
+                    onChange={(e) => setNewProdPrice(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white font-mono placeholder-slate-500 outline-none focus:border-rose-500"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-slate-300 font-semibold">رابط صورة الغلاف</label>
+                <input
+                  type="url"
+                  value={newProdImage}
+                  onChange={(e) => setNewProdImage(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 outline-none focus:border-rose-500 text-left font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-slate-300 font-semibold">الوصف والتفاصيل</label>
+                <textarea
+                  rows={3}
+                  placeholder="وصف تفصيلي للعبة ومميزاتها وتحديثاتها..."
+                  value={newProdDesc}
+                  onChange={(e) => setNewProdDesc(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 outline-none focus:border-rose-500"
+                ></textarea>
+              </div>
+
+              <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateProductModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold shadow-lg shadow-rose-600/30 flex items-center gap-1.5"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>حفظ ونشر في السحابة الآن</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* CREATE ARTICLE MODAL */}
+      {isCreateArticleModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="max-w-lg w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-emerald-400" />
+                <h3 className="font-bold text-white text-base">نشر مقال وشرح جديد</h3>
+              </div>
+              <button
+                onClick={() => setIsCreateArticleModalOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateArticle} className="space-y-4 text-xs">
+              <div className="space-y-1">
+                <label className="text-slate-300 font-semibold">عنوان المقال أو الدرس</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="مثال: الدليل الشامل لبرمجة أنظمة الأسلحة في روبلوكس"
+                  value={newArtTitle}
+                  onChange={(e) => setNewArtTitle(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-slate-300 font-semibold">التصنيف</label>
+                <select
+                  value={newArtCategory}
+                  onChange={(e) => setNewArtCategory(e.target.value as any)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white outline-none focus:border-emerald-500"
+                >
+                  <option value="تطوير روبلوكس">تطوير روبلوكس</option>
+                  <option value="برمجة Luau">برمجة Luau</option>
+                  <option value="شروحات تقنية">شروحات تقنية</option>
+                  <option value="أخبار الألعاب">أخبار الألعاب</option>
+                  <option value="تصميم ثلاثي الأبعاد">تصميم ثلاثي الأبعاد</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-slate-300 font-semibold">ملخص المقال (Excerpt)</label>
+                <input
+                  type="text"
+                  placeholder="ملخص قصير يظهر في البطاقة..."
+                  value={newArtExcerpt}
+                  onChange={(e) => setNewArtExcerpt(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-slate-300 font-semibold">رابط صورة الغلاف</label>
+                <input
+                  type="url"
+                  value={newArtCover}
+                  onChange={(e) => setNewArtCover(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 outline-none focus:border-emerald-500 text-left font-mono"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-slate-300 font-semibold">محتوى المقال كاملاً</label>
+                <textarea
+                  rows={6}
+                  required
+                  placeholder="اكتب الدرس أو المقال هنا بالتفصيل والشروحات البرمجية..."
+                  value={newArtContent}
+                  onChange={(e) => setNewArtContent(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-500 outline-none focus:border-emerald-500 font-mono"
+                ></textarea>
+              </div>
+
+              <div className="pt-4 border-t border-slate-800 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateArticleModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold shadow-lg shadow-emerald-600/30 flex items-center gap-1.5"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>حفظ ونشر المقال سحابياً</span>
                 </button>
               </div>
             </form>

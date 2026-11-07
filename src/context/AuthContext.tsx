@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, UserRole, DeveloperApplication, Friend, FriendRequest, ChatMessage } from '../types';
 import { initialUsers, initialFriends, initialFriendRequests } from '../data/mockData';
-import { db, saveUserToCloud, loadCloudUsers } from '../firebase/config';
+import { db, saveUserToCloud, deleteUserFromCloud, loadCloudUsers } from '../firebase/config';
 import { collection, onSnapshot } from 'firebase/firestore';
 
 interface VerificationEmailData {
@@ -44,6 +44,7 @@ interface AuthContextType {
   verificationEmail: VerificationEmailData | null;
   clearVerificationEmailModal: () => void;
   updateUserRole: (userId: string, role: UserRole) => void;
+  deleteUser: (userId: string) => void;
   verifyDeveloperManual: (appId: string, approve: boolean) => void;
   resetAllData: () => void;
 }
@@ -336,12 +337,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => setCurrentUser(null);
 
   const updateUserRole = (userId: string, role: UserRole) => {
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, role } : u));
+    setUsers(prev => {
+      const updated = prev.map(u => u.id === userId ? { ...u, role } : u);
+      const target = updated.find(u => u.id === userId);
+      if (target) saveUserToCloud({ ...target, role }, (target as any).registrationSource || 'website');
+      return updated;
+    });
     if (currentUser?.id === userId) {
       setCurrentUser(prev => prev ? { ...prev, role } : null);
     }
-    const target = users.find(u => u.id === userId);
-    if (target) saveUserToCloud({ ...target, role });
+  };
+
+  const deleteUser = (userId: string) => {
+    setUsers(prev => prev.filter(u => u.id !== userId));
+    deleteUserFromCloud(userId);
   };
 
   const verifyDeveloperManual = (appId: string, approve: boolean) => {
@@ -386,6 +395,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         verificationEmail: showInboxModalData,
         clearVerificationEmailModal,
         updateUserRole,
+        deleteUser,
         verifyDeveloperManual,
         resetAllData
       }}

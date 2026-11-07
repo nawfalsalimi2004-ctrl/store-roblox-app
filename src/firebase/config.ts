@@ -96,6 +96,50 @@ export async function saveUserToCloud(user: any, source: 'website' | 'mobile_app
   }
 }
 
+export async function deleteUserFromCloud(userId: string) {
+  if (!db) return;
+  try {
+    await deleteDoc(doc(db, 'users', userId));
+    console.log("☁️ User deleted from Firebase Firestore:", userId);
+  } catch (err) {
+    console.warn("Could not delete user from Firestore:", err);
+  }
+}
+
+export async function saveApiKeyToCloud(keyItem: any) {
+  if (!db) return;
+  try {
+    await setDoc(doc(db, 'api_keys', keyItem.id), {
+      ...keyItem,
+      syncedAt: new Date().toISOString()
+    }, { merge: true });
+    console.log("☁️ API Key synced to Firebase Firestore:", keyItem.name);
+  } catch (err) {
+    console.warn("Could not sync API key to Firestore:", err);
+  }
+}
+
+export async function deleteApiKeyFromCloud(keyId: string) {
+  if (!db) return;
+  try {
+    await deleteDoc(doc(db, 'api_keys', keyId));
+    console.log("☁️ API Key deleted from Firebase Firestore:", keyId);
+  } catch (err) {
+    console.warn("Could not delete API key from Firestore:", err);
+  }
+}
+
+export async function loadCloudApiKeys(): Promise<any[]> {
+  if (!db) return [];
+  try {
+    const snap = await getDocs(collection(db, 'api_keys'));
+    return snap.docs.map(d => ({ ...d.data(), id: d.id }));
+  } catch (err) {
+    console.warn("Could not load API keys from Firestore:", err);
+    return [];
+  }
+}
+
 export async function loadCloudArticles(): Promise<any[]> {
   if (!db) return [];
   try {
