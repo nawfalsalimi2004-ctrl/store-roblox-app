@@ -67,13 +67,22 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenProduct, o
               <span>ألعاب روبلوكس وتحديثاتها الحية</span>
             </button>
 
-            {/* Download App CTA */}
+            {/* Direct Download App CTA */}
+            <a
+              href="/RobloxDevStore-v1.0.0.apk"
+              download="RobloxDevStore-v1.0.0.apk"
+              className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold text-sm shadow-xl shadow-rose-600/30 transition-all hover:scale-105 active:scale-95"
+            >
+              <Download className="w-5 h-5 animate-bounce" />
+              <span>تحميل تطبيق الأندرويد مباشرة (APK)</span>
+            </a>
+
             <button
               onClick={onOpenAppDownload}
-              className="flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-sm shadow-md transition-all hover:scale-105 border border-slate-700"
+              className="flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-sm shadow-md transition-all hover:scale-105 border border-slate-700"
             >
               <Smartphone className="w-5 h-5 text-rose-400" />
-              <span>تحميل تطبيق الهاتف (APK)</span>
+              <span>معاينة المحاكي</span>
             </button>
 
             <button
@@ -108,32 +117,59 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenProduct, o
       </section>
 
       {/* Mobile App Promotion Card */}
-      <section className="rounded-3xl border border-rose-300 dark:border-rose-500/30 bg-gradient-to-r from-rose-500/10 via-white dark:via-slate-900 to-indigo-500/10 p-8 sm:p-10 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="flex items-center gap-5">
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-rose-600 to-red-500 flex items-center justify-center text-white shadow-xl shadow-rose-600/30 shrink-0">
-            <Smartphone className="w-8 h-8" />
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
-                حمّل تطبيق المنصة الآن على هاتفك الذكي
-              </h3>
-              <span className="px-2 py-0.5 rounded bg-rose-500 text-white text-[10px] font-bold">جديد</span>
+      <section className="rounded-3xl border border-rose-300 dark:border-rose-500/30 bg-gradient-to-r from-rose-500/10 via-white dark:via-slate-900 to-indigo-500/10 p-6 sm:p-10 shadow-xl space-y-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="flex items-center gap-4 sm:gap-5">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-gradient-to-tr from-rose-600 to-red-500 flex items-center justify-center text-white shadow-xl shadow-rose-600/30 shrink-0">
+              <Smartphone className="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
-            <p className="text-xs text-slate-600 dark:text-slate-400 max-w-lg leading-relaxed">
-              شاشة بداية تفاعلية (Splash Screen)، تسجيل دخول وإنشاء حساب سريع، صفحة ترحيب، وشارة التوثيق المعتمدة للمطورين، مع شريط تنقل سفلي للهواتف.
-            </p>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <h3 className="text-base sm:text-xl font-black text-slate-900 dark:text-white">
+                  حمّل تطبيق المنصة الأصلي للأندرويد (ملف APK مباشر)
+                </h3>
+                <span className="px-2 py-0.5 rounded bg-emerald-500 text-white text-[10px] font-bold">7.3 MB</span>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-400 max-w-lg leading-relaxed">
+                تنزيل مباشر وسريع من موقعنا بدون أي وسيط أو تطبيقات خارجية. يتضمن شاشة بداية، تسجيل دخول، صفحة ترحيب وشارة التوثيق المعتمدة.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            <a
+              href="/RobloxDevStore-v1.0.0.apk"
+              download="RobloxDevStore-v1.0.0.apk"
+              className="flex-1 md:flex-none px-6 py-3 rounded-2xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white text-xs font-bold shadow-lg shadow-rose-600/30 transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+            >
+              <Download className="w-4 h-4 animate-bounce" />
+              <span>تحميل ملف APK مباشرة</span>
+            </a>
+
+            <button
+              onClick={onOpenAppDownload}
+              className="flex-1 md:flex-none px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all flex items-center justify-center gap-2 border border-slate-300 dark:border-slate-700"
+            >
+              <Smartphone className="w-4 h-4 text-rose-500" />
+              <span>تشغيل المحاكي التفاعلي</span>
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-          <button
-            onClick={onOpenAppDownload}
-            className="px-6 py-3 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-lg shadow-rose-600/30 transition-all flex items-center gap-2"
-          >
-            <Download className="w-4 h-4" />
-            <span>تحميل ومعاينة التطبيق</span>
-          </button>
+        {/* 3 Step Installation Guidance */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-200 dark:border-slate-800/80 text-xs text-slate-600 dark:text-slate-400">
+          <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/60 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800/60">
+            <span className="w-6 h-6 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-xs shrink-0">1</span>
+            <span>اضغط فوق زر <strong>تحميل ملف APK</strong> ليتم حفظه بهاتفك</span>
+          </div>
+          <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/60 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800/60">
+            <span className="w-6 h-6 rounded-full bg-rose-600 text-white font-bold flex items-center justify-center text-xs shrink-0">2</span>
+            <span>افتح الملف من التنزيلات واضغط <strong>تثبيت (Install)</strong></span>
+          </div>
+          <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/60 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800/60">
+            <span className="w-6 h-6 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-xs shrink-0">3</span>
+            <span>افتح التطبيق وسجل دخولك لتظهر <strong>شارة التوثيق</strong> فوراً</span>
+          </div>
         </div>
       </section>
 

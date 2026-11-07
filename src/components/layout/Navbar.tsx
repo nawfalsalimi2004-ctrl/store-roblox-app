@@ -15,7 +15,8 @@ import {
   Moon,
   Users,
   LogIn,
-  Smartphone
+  Smartphone,
+  Download
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useStore } from '../../context/StoreContext';
@@ -103,15 +104,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenC
 
         {/* Right Action Icons: App Download, Theme Toggle, Cart, Profile / Login */}
         <div className="flex items-center gap-2 sm:gap-2.5">
-          {/* Download App Button */}
-          <button
-            onClick={onOpenAppDownload}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-rose-600/15 to-red-600/15 hover:from-rose-600 hover:to-red-600 border border-rose-500/30 text-rose-600 dark:text-rose-400 hover:text-white text-xs font-bold transition-all shadow-sm group"
-            title="تحميل التطبيق على هاتفك"
+          {/* Direct APK Download Button (Visible on mobile and desktop) */}
+          <a
+            href="/RobloxDevStore-v1.0.0.apk"
+            download="RobloxDevStore-v1.0.0.apk"
+            className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white text-xs font-bold transition-all shadow-md shadow-rose-600/25 active:scale-95"
+            title="تحميل تطبيق الأندرويد APK مباشرة"
           >
-            <Smartphone className="w-4 h-4 group-hover:scale-110 transition-transform" />
-            <span className="hidden sm:inline">تحميل التطبيق</span>
-          </button>
+            <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-bounce" />
+            <span className="text-[11px] sm:text-xs">تنزيل APK</span>
+          </a>
 
           {/* Theme Toggle (Dark / Light) */}
           <button
@@ -268,18 +270,31 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenC
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-4 py-4 space-y-2 text-right">
+          <a
+            href="/RobloxDevStore-v1.0.0.apk"
+            download="RobloxDevStore-v1.0.0.apk"
+            onClick={() => setMobileMenuOpen(false)}
+            className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 text-white font-bold text-xs shadow-md active:scale-95 transition-transform"
+          >
+            <div className="flex items-center gap-2">
+              <Download className="w-4 h-4 animate-bounce" />
+              <span>تحميل تطبيق APK مباشرة للهاتف</span>
+            </div>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-white text-rose-600 font-bold">7.3 MB</span>
+          </a>
+
           <button
             onClick={() => {
               onOpenAppDownload();
               setMobileMenuOpen(false);
             }}
-            className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-rose-600/15 border border-rose-500/30 text-rose-500 font-bold text-xs"
+            className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs"
           >
             <div className="flex items-center gap-2">
-              <Smartphone className="w-4 h-4" />
-              <span>تحميل التطبيق على هاتفك</span>
+              <Smartphone className="w-4 h-4 text-rose-500" />
+              <span>معاينة محاكي التطبيق التفاعلي</span>
             </div>
-            <span className="text-[10px] px-2 py-0.5 rounded bg-rose-600 text-white font-bold">APK</span>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-500 font-bold">محاكي</span>
           </button>
 
           {navItems.map((item) => {
