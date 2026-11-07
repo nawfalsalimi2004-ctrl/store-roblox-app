@@ -1,0 +1,14 @@
+{
+  "status": "success",
+  "platform": "https://developer-blush-psi.vercel.app",
+  "firebase": {
+    "projectId": "roblox-dev-store-56302",
+    "authDomain": "roblox-dev-store-56302.firebaseapp.com",
+    "status": "connected"
+  },
+  "endpoints": {
+    "games": "https://developer-blush-psi.vercel.app/api/games",
+    "articles": "https://developer-blush-psi.vercel.app/api/articles"
+  },
+  "updatedAt": "2026-11-07T15:45:00Z"
+}

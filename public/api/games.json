@@ -1,0 +1,134 @@
+{
+  "status": "success",
+  "platform": "https://developer-blush-psi.vercel.app",
+  "total": 4,
+  "updatedAt": "2026-11-07T15:45:00Z",
+  "games": [
+    {
+      "id": "game-kingdom-legends",
+      "title": "مملكة الأساطير: مغامرة العالم المفتوح",
+      "category": "ألعاب روبلوكس",
+      "genre": "RPG / عالم مفتوح",
+      "rating": 4.9,
+      "reviewsCount": 1240,
+      "downloads": 185000,
+      "version": "2.4.0",
+      "lastUpdated": "2026-11-05",
+      "robloxPlaceId": "15482910482",
+      "robloxGameUrl": "https://www.roblox.com/games/15482910482/Kingdom-of-Legends",
+      "image": "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=80",
+      "description": "لعبة مغامرات وتقمص أدوار RPG خرافية في عالم روبلوكس المفتوح مع معارك حية وأسلحة سحرية متطورة.",
+      "developer": {
+        "id": "user-dev-tariq",
+        "name": "طارق الحربي",
+        "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+        "isVerified": true
+      },
+      "tags": ["Roblox", "RPG", "عالم مفتوح", "مغامرات", "PvP"],
+      "latestUpdate": {
+        "version": "2.4.0",
+        "title": "تحديث عالم التنانين والسيرفرات السريعة",
+        "date": "2026-11-05",
+        "changes": [
+          "إضافة خريطة بركان التنانين الجديدة",
+          "تحسين استجابة الشبكة وتقليل اللاج إلى 20ms",
+          "إضافة 12 درعاً وسيفاً أسطورياً جديداً"
+        ]
+      }
+    },
+    {
+      "id": "game-arena-strike",
+      "title": "حرب الساحات التكتيكية (Arena Strike FPS)",
+      "category": "ألعاب روبلوكس",
+      "genre": "FPS / إطلاق نار تكتيكي",
+      "rating": 4.8,
+      "reviewsCount": 890,
+      "downloads": 94000,
+      "version": "1.8.2",
+      "lastUpdated": "2026-11-01",
+      "robloxPlaceId": "18924018293",
+      "robloxGameUrl": "https://www.roblox.com/games/18924018293/Arena-Strike-FPS",
+      "image": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=80",
+      "description": "لعبة إطلاق نار تكتيكية متعددة اللاعبين بنظام فيزياء واقعي وأسلحة مخصصة بدقة عالية.",
+      "developer": {
+        "id": "user-admin",
+        "name": "المشرف العام (أدمن)",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        "isVerified": true
+      },
+      "tags": ["Roblox", "FPS", "شوتر", "تكتيكي", "أكشن"],
+      "latestUpdate": {
+        "version": "1.8.2",
+        "title": "تحديث بنادق القنص وسيرفرات الشرق الأوسط",
+        "date": "2026-11-01",
+        "changes": [
+          "تفعيل سيرفرات الشرق الأوسط (بينغ 15ms)",
+          "إضافة خريطة المصنع المهجور",
+          "نظام تصنيف جديد وجوائز أسبوعية"
+        ]
+      }
+    },
+    {
+      "id": "game-speed-city",
+      "title": "مدينة السرعة والمطاردات (Speed City Simulator)",
+      "category": "ألعاب روبلوكس",
+      "genre": "سباقات / قيادة واقعية",
+      "rating": 4.7,
+      "reviewsCount": 650,
+      "downloads": 142000,
+      "version": "3.1.0",
+      "lastUpdated": "2026-10-28",
+      "robloxPlaceId": "16739201948",
+      "robloxGameUrl": "https://www.roblox.com/games/16739201948/Speed-City-Simulator",
+      "image": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&auto=format&fit=crop&q=80",
+      "description": "محاكي سباقات قيادة واقعية وتعديل سيارات خارقة في شوارع مدينة مفتوحة ضخمة.",
+      "developer": {
+        "id": "user-dev-tariq",
+        "name": "طارق الحربي",
+        "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+        "isVerified": true
+      },
+      "tags": ["Roblox", "سباق", "سيارات", "محاكي", "عالم مفتوح"],
+      "latestUpdate": {
+        "version": "3.1.0",
+        "title": "تحديث السيارات الخارقة والسباقات الليلية",
+        "date": "2026-10-28",
+        "changes": [
+          "إضافة نظام الدريفت التفاعلي",
+          "تحديث صوت المحركات بنقاء صوتي عالي"
+        ]
+      }
+    },
+    {
+      "id": "game-escape-maze",
+      "title": "كوابيس الظلام: الهروب من المتاهة (Escape The Maze)",
+      "category": "ألعاب روبلوكس",
+      "genre": "رعب / بقاء وألغاز",
+      "rating": 4.9,
+      "reviewsCount": 1120,
+      "downloads": 210000,
+      "version": "1.2.0",
+      "lastUpdated": "2026-11-04",
+      "robloxPlaceId": "19028374612",
+      "robloxGameUrl": "https://www.roblox.com/games/19028374612/Escape-The-Maze",
+      "image": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=800&auto=format&fit=crop&q=80",
+      "description": "لعبة رعب وبقاء نفسي مع ألغاز صوتية ومتاهات تتغير تلقائياً في كل جولة.",
+      "developer": {
+        "id": "user-admin",
+        "name": "المشرف العام (أدمن)",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        "isVerified": true
+      },
+      "tags": ["Roblox", "رعب", "بقاء", "ألغاز", "تعاوني"],
+      "latestUpdate": {
+        "version": "1.2.0",
+        "title": "تحديث الفصل الثاني والمتاهات العشوائية",
+        "date": "2026-11-04",
+        "changes": [
+          "إضافة وحش الشبح الجديد",
+          "نظام صوتي محيطي 3D مرعب"
+        ]
+      }
+    }
+  ]
+}

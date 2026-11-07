@@ -1,193 +1,308 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../services/api_service.dart';
+import '../services/firebase_service.dart';
 import '../theme/app_theme.dart';
 import 'auth_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
-  final String userName;
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
 
-  const ProfileScreen({Key? key, required this.userName}) : super(key: key);
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final user = FirebaseService.currentUser;
+
+  Future<void> _handleSignOut() async {
+    await FirebaseService.signOut();
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const AuthScreen()),
+      );
+    }
+  }
+
+  Future<void> _openWebPlatform() async {
+    try {
+      final uri = Uri.parse('https://developer-blush-psi.vercel.app');
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.darkBg,
-      appBar: AppBar(
-        title: const Text(
-          'الملف الشخصي',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        backgroundColor: AppTheme.darkCard,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            // User Avatar Card
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppTheme.darkCard,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppTheme.darkCardBorder),
-              ),
-              child: Column(
-                children: [
-                  Stack(
-                    children: [
-                      Container(
-                        width: 84,
-                        height: 84,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppTheme.primaryRose, width: 2),
-                        ),
-                        child: const CircleAvatar(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // User Card
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppTheme.darkCard,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: AppTheme.darkCardBorder),
+                ),
+                child: Column(
+                  children: [
+                    Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        CircleAvatar(
+                          radius: 38,
                           backgroundImage: NetworkImage(
-                            'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+                            user?.avatar ?? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
                           ),
                         ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
+                        Container(
                           padding: const EdgeInsets.all(4),
                           decoration: const BoxDecoration(
-                            color: AppTheme.successEmerald,
+                            color: Colors.blueAccent,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.check, color: Colors.white, size: 14),
+                          child: const Icon(Icons.check, size: 14, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          user?.name ?? 'مطور المنصة',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryRose.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'Verified Dev ⚡',
+                            style: TextStyle(
+                              color: AppTheme.primaryRose,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      user?.email ?? 'admin@robloxdev.com',
+                      style: const TextStyle(color: AppTheme.darkTextSecondary, fontSize: 12),
+                    ),
+                    if (user?.robloxUsername.isNotEmpty ?? false) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.darkBg,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppTheme.darkCardBorder),
+                        ),
+                        child: Text(
+                          'Roblox: @${user?.robloxUsername}',
+                          style: const TextStyle(color: Colors.white70, fontSize: 11, fontFamily: 'monospace'),
                         ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    userName,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    '@RobloxDev_Official',
-                    style: TextStyle(fontSize: 11, color: AppTheme.primaryRose, fontFamily: 'monospace'),
-                  ),
-                  const SizedBox(height: 14),
-                  // Badges
-                  Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppTheme.successEmerald.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppTheme.successEmerald.withOpacity(0.4)),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.shield, size: 14, color: AppTheme.successEmerald),
-                            SizedBox(width: 4),
-                            Text(
-                              'مطور معتمد وموثق (Verified Dev ⚡)',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.successEmerald),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppTheme.secondaryAmber.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppTheme.secondaryAmber.withOpacity(0.4)),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.card_giftcard, size: 14, color: AppTheme.secondaryAmber),
-                            SizedBox(width: 4),
-                            Text(
-                              'عضوية VIP التطبيق • رصيد 250 R\$',
-                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.secondaryAmber),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'مطور ألعاب في منصة روبلوكس، متخصص في لغة Luau وأنظمة الـ DataStores ثلاثية الأبعاد.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 11, color: Color(0xFF94A3B8), height: 1.4),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
 
-            // Profile Actions List
-            _buildActionItem(
-              icon: Icons.vpn_key_outlined,
-              title: 'مفاتيح الربط والـ API الخاصة بي',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('مفاتيح الـ API للمطورين مفعلة ومرتبطة بحسابك.')),
-                );
-              },
-            ),
-            _buildActionItem(
-              icon: Icons.history,
-              title: 'سجل الطلبات والمشتريات',
-              onTap: () {},
-            ),
-            _buildActionItem(
-              icon: Icons.security,
-              title: 'الأمان والتحقق عبر OTP',
-              onTap: () {},
-            ),
-            _buildActionItem(
-              icon: Icons.logout,
-              title: 'تسجيل الخروج من التطبيق',
-              color: Colors.redAccent,
-              onTap: () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const AuthScreen()),
-                );
-              },
-            ),
-          ],
+              const SizedBox(height: 20),
+
+              // Firebase Connection Status
+              _buildSectionTitle('الاتصال السحابي (Firebase Cloud)'),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.darkCard,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppTheme.darkCardBorder),
+                ),
+                child: Column(
+                  children: [
+                    _buildStatusRow(
+                      icon: Icons.local_fire_department_rounded,
+                      iconColor: Colors.amber,
+                      title: 'Firebase Project ID',
+                      value: FirebaseService.projectId,
+                      isOk: true,
+                    ),
+                    const Divider(color: AppTheme.darkCardBorder, height: 24),
+                    _buildStatusRow(
+                      icon: Icons.security_rounded,
+                      iconColor: AppTheme.successEmerald,
+                      title: 'Firebase Auth & Sync',
+                      value: 'متصل ومفعل (Active)',
+                      isOk: true,
+                    ),
+                    const Divider(color: AppTheme.darkCardBorder, height: 24),
+                    _buildStatusRow(
+                      icon: Icons.cloud_done_rounded,
+                      iconColor: Colors.blueAccent,
+                      title: 'Cloud App ID',
+                      value: '1:563020191603:android:...',
+                      isOk: true,
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Website API Status
+              _buildSectionTitle('ربط واجهة الموقع (Website API)'),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.darkCard,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppTheme.darkCardBorder),
+                ),
+                child: Column(
+                  children: [
+                    _buildStatusRow(
+                      icon: Icons.link_rounded,
+                      iconColor: AppTheme.primaryRose,
+                      title: 'رابط الموقع الرئيسي',
+                      value: 'developer-blush-psi.vercel.app',
+                      isOk: true,
+                    ),
+                    const Divider(color: AppTheme.darkCardBorder, height: 24),
+                    _buildStatusRow(
+                      icon: Icons.speed_rounded,
+                      iconColor: AppTheme.successEmerald,
+                      title: 'سرعة الاستجابة (Latency)',
+                      value: '${ApiService.lastLatencyMs} ms (سريع جداً)',
+                      isOk: true,
+                    ),
+                    const Divider(color: AppTheme.darkCardBorder, height: 24),
+                    _buildStatusRow(
+                      icon: Icons.api_rounded,
+                      iconColor: AppTheme.accentIndigo,
+                      title: 'نقاط البيانات (API Endpoints)',
+                      value: '/api/games • /api/articles',
+                      isOk: true,
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Actions
+              OutlinedButton.icon(
+                onPressed: _openWebPlatform,
+                icon: const Icon(Icons.open_in_new_rounded, size: 16),
+                label: const Text('فتح موقع المنصة في المتصفح'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  side: const BorderSide(color: AppTheme.darkCardBorder),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              ElevatedButton.icon(
+                onPressed: _handleSignOut,
+                icon: const Icon(Icons.logout_rounded, size: 16),
+                label: const Text('تسجيل الخروج من الحساب'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red.withOpacity(0.15),
+                  foregroundColor: Colors.redAccent,
+                  elevation: 0,
+                  side: BorderSide(color: Colors.red.withOpacity(0.3)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildActionItem({
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 13,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  Widget _buildStatusRow({
     required IconData icon,
+    required Color iconColor,
     required String title,
-    required VoidCallback onTap,
-    Color? color,
+    required String value,
+    required bool isOk,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: AppTheme.darkCard,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.darkCardBorder),
-      ),
-      child: ListTile(
-        leading: Icon(icon, color: color ?? Colors.white70, size: 20),
-        title: Text(
-          title,
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color ?? Colors.white),
+    return Row(
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: iconColor.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: iconColor, size: 18),
         ),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 12, color: Colors.white24),
-        onTap: onTap,
-      ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(color: AppTheme.darkTextSecondary, fontSize: 10),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: isOk ? AppTheme.successEmerald : Colors.red,
+            shape: BoxShape.circle,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1,0 +1,74 @@
+{
+  "status": "success",
+  "platform": "https://developer-blush-psi.vercel.app",
+  "total": 3,
+  "updatedAt": "2026-11-07T15:45:00Z",
+  "articles": [
+    {
+      "id": "art-mastering-luau-2026",
+      "title": "الدليل الشامل لاحتراف محرك Roblox Studio وبرمجة Luau 2026",
+      "slug": "mastering-roblox-studio-luau-2026",
+      "category": "برمجة Luau",
+      "readTimeMinutes": 5,
+      "views": 3420,
+      "likes": 412,
+      "commentsCount": 28,
+      "createdAt": "2026-11-04",
+      "coverImage": "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1000&auto=format&fit=crop&q=80",
+      "excerpt": "تعلم أهم الممارسات والتقنيات الحديثة في لغة Luau لبناء ألعاب روبلوكس سريعة واحترافية قابلة للتوسع.",
+      "content": "مرحباً بكم في الدليل البرمجي الشامل لمطوري روبلوكس!\n\nتطورت لغة Luau بشكل مذهل خلال الفترة الأخيرة لتصبح أسرع وأقوى لغات البرمجة المخصصة للألعاب. في هذا المقال، سنستعرض الخطوات الأساسية لتحويل أفكارك إلى ألعاب حقيقية جاهزة للنشر:\n\n1. البنية المعمارية النظيفة (ModuleScripts):\nتجنب تكرار الكود عبر تقسيم منطق اللعبة إلى وحدات نمطية منفصلة للعميل (Client) والخادم (Server). استخدم دائماً RemoteEvents لنقل الأوامر بشكل آمن مع التحقق الصارم من مدخلات اللاعبين.\n\n2. تحسين الأداء وإدارة الذاكرة (Memory Leaks):\nاحرص دائماً على إلغاء ربط الأحداث (Disconnect Events) عند تدمير الكائنات أو موت الشخصية لتفادي تراكم استهلاك الذاكرة في السيرفرات الطويلة.\n\n3. استغلال نظام Parallel Luau:\nيقدم Luau الحديث دعماً حقيقياً لتعدد الأنوية، مما يمكنك من معالجة الذكاء الاصطناعي والحسابات المعقدة في خيوط منفصلة دون إبطاء حركة اللعبة الرئيسية.\n\nاستمر في بناء تجاربك وتحديث ألعابك بانتظام وشاركها مع مجتمع المطورين!",
+      "author": {
+        "id": "user-admin",
+        "name": "المشرف العام (أدمن)",
+        "role": "مشرف المنصة",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        "isVerified": true
+      },
+      "tags": ["Roblox", "Luau", "Studio", "برمجة", "أداء"]
+    },
+    {
+      "id": "art-server-lag-optimization",
+      "title": "أفضل الممارسات لتقليل اللاج وتحسين أداء سيرفرات روبلوكس",
+      "slug": "roblox-server-lag-optimization",
+      "category": "شروحات تقنية",
+      "readTimeMinutes": 4,
+      "views": 2890,
+      "likes": 358,
+      "commentsCount": 19,
+      "createdAt": "2026-11-02",
+      "coverImage": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1000&auto=format&fit=crop&q=80",
+      "excerpt": "دليل عملي للمطورين لمعالجة بطء السيرفرات، خفض استهلاك النطاق الترددي، وضمان معدل 60 إطاراً في الثانية.",
+      "content": "يعتبر اللاج وبطء الاستجابة العدو الأول لنجاح أي لعبة روبلوكس. إليك أهم النصائح العملية لحل هذه المشكلة جذرياً:\n\n1. ضغط حزم البيانات عبر الشبكة (Network Bandwidth):\nلا ترسل جداول ضخمة عبر RemoteEvents كل فريم! أرسل التغييرات الضرورية فقط عند حدوثها، واستخدم أنواع بيانات صغيرة مثل الأرقام الصحيحة أو الـ Enums بدلاً من النصوص الطويلة.\n\n2. تقليل الاعتماد على Physics Engine الثقيل:\nاستخدم CanCollide = false و CanTouch = false و CastShadow = false للأجزاء التجميلية والديكورات التي لا يتفاعل معها اللاعب مباشرة.\n\n3. الاستفادة من Culling و StreamingEnabled:\nتفعيل StreamingEnabled في Workspace يقلل وقت تحميل الخريطة للهواتف والأجهزة الضعيفة بنسبة تصل إلى 70%، مما يتيح للاعبين بدء اللعب فوراً.",
+      "author": {
+        "id": "user-dev-tariq",
+        "name": "طارق الحربي",
+        "role": "مطور معتمد",
+        "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+        "isVerified": true
+      },
+      "tags": ["Server", "Lag", "Optimization", "شبكات"]
+    },
+    {
+      "id": "art-custom-ui-ux-design",
+      "title": "كيفية تصميم واجهات مستخدم (UI/UX) تفاعلية تجذب ملايين اللاعبين",
+      "slug": "roblox-custom-ui-ux-design",
+      "category": "تطوير روبلوكس",
+      "readTimeMinutes": 6,
+      "views": 1980,
+      "likes": 245,
+      "commentsCount": 14,
+      "createdAt": "2026-10-30",
+      "coverImage": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1000&auto=format&fit=crop&q=80",
+      "excerpt": "طرق تصميم واجهات روبلوكس عصرية متجاوبة مع كافة مقاسات الشاشات وخاصة الهواتف الذكية.",
+      "content": "تصميم الواجهة ليس مجرد ألوان، بل هو الطريقة التي يتنقل بها اللاعب داخل عالمك:\n\n- التجاوب الكامل (Scale vs Offset): استخدم دائماً مقياس Scale مع تقييد AspectRatioConstraint حتى تظهر الواجهة بنفس النسبة على شاشة الهاتف، التابلت، وشاشة الكمبيوتر الضخمة.\n- المؤثرات الحركية باستخدام TweenService: إعطاء انسيابية للأزرار عند الضغط أو فتح النوافذ يعطي انطباعاً بالجودة الاحترافية للعبة.\n- تبسيط الأزرار للهواتف: أكثر من 70% من لاعبي روبلوكس يلعبون عبر الهواتف، لذا اجعل أزرار التحكم بحجم مريح لإصبع الإبهام.",
+      "author": {
+        "id": "user-admin",
+        "name": "المشرف العام (أدمن)",
+        "role": "مشرف المنصة",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        "isVerified": true
+      },
+      "tags": ["UI", "UX", "واجهات", "تصميم", "Mobile"]
+    }
+  ]
+}

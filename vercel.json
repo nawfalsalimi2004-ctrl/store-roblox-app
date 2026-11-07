@@ -13,6 +13,15 @@
   ],
   "headers": [
     {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" },
+        { "key": "Cache-Control", "value": "public, max-age=60, s-maxage=300" }
+      ]
+    },
+    {
       "source": "/RobloxDevStore-v1.0.0.apk",
       "headers": [
         {
@@ -31,6 +40,18 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/api/games",
+      "destination": "/api/games.json"
+    },
+    {
+      "source": "/api/articles",
+      "destination": "/api/articles.json"
+    },
+    {
+      "source": "/api/feed",
+      "destination": "/api/feed.json"
+    },
     {
       "source": "/((?!.*\\..*).*)",
       "destination": "/index.html"

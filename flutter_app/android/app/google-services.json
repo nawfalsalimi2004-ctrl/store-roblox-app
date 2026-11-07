@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "563020191603",
+    "project_id": "roblox-dev-store-56302",
+    "storage_bucket": "roblox-dev-store-56302.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:563020191603:android:9ec4d10c3ec4ddbc369706",
+        "android_client_info": {
+          "package_name": "com.robloxdev.store.roblox_dev_store"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUwGMqFKnM5gzZ_Vv4PWvM4PKJvQPe0Vs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
