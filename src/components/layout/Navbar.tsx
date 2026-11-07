@@ -14,7 +14,8 @@ import {
   Sun,
   Moon,
   Users,
-  LogIn
+  LogIn,
+  Smartphone
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useStore } from '../../context/StoreContext';
@@ -24,9 +25,10 @@ interface NavbarProps {
   currentPage: string;
   onNavigate: (page: string, param?: string) => void;
   onOpenCart: () => void;
+  onOpenAppDownload: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenCart }) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenCart, onOpenAppDownload }) => {
   const { currentUser, logout, friends, friendRequests } = useAuth();
   const { cart } = useStore();
   const { theme, toggleTheme } = useTheme();
@@ -99,8 +101,18 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenC
           })}
         </nav>
 
-        {/* Right Action Icons: Theme Toggle, Cart, Profile / Login */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Right Action Icons: App Download, Theme Toggle, Cart, Profile / Login */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Download App Button */}
+          <button
+            onClick={onOpenAppDownload}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-rose-600/15 to-red-600/15 hover:from-rose-600 hover:to-red-600 border border-rose-500/30 text-rose-600 dark:text-rose-400 hover:text-white text-xs font-bold transition-all shadow-sm group"
+            title="تحميل التطبيق على هاتفك"
+          >
+            <Smartphone className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            <span className="hidden sm:inline">تحميل التطبيق</span>
+          </button>
+
           {/* Theme Toggle (Dark / Light) */}
           <button
             onClick={toggleTheme}
@@ -240,12 +252,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenC
                 <LogIn className="w-3.5 h-3.5" />
                 <span>تسجيل الدخول</span>
               </button>
-              <button
-                onClick={() => onNavigate('register')}
-                className="hidden sm:inline-flex px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition-all"
-              >
-                إنشاء حساب
-              </button>
             </div>
           )}
 
@@ -262,6 +268,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenC
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-4 py-4 space-y-2 text-right">
+          <button
+            onClick={() => {
+              onOpenAppDownload();
+              setMobileMenuOpen(false);
+            }}
+            className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-rose-600/15 border border-rose-500/30 text-rose-500 font-bold text-xs"
+          >
+            <div className="flex items-center gap-2">
+              <Smartphone className="w-4 h-4" />
+              <span>تحميل التطبيق على هاتفك</span>
+            </div>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-rose-600 text-white font-bold">APK</span>
+          </button>
+
           {navItems.map((item) => {
             if (item.requiresAdmin && currentUser?.role !== 'admin') return null;
             if (item.requiresDev && currentUser?.role !== 'developer' && currentUser?.role !== 'admin') return null;
@@ -284,36 +304,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, onOpenC
                   <Icon className="w-4 h-4" />
                   <span>{item.label}</span>
                 </div>
-                {item.badge && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500 text-white font-bold">
-                    {item.badge}
-                  </span>
-                )}
               </button>
             );
           })}
-          {!currentUser && (
-            <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex gap-2">
-              <button
-                onClick={() => {
-                  onNavigate('login');
-                  setMobileMenuOpen(false);
-                }}
-                className="flex-1 py-2.5 rounded-xl bg-rose-600 text-white text-xs font-bold text-center"
-              >
-                تسجيل الدخول
-              </button>
-              <button
-                onClick={() => {
-                  onNavigate('register');
-                  setMobileMenuOpen(false);
-                }}
-                className="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold text-center"
-              >
-                إنشاء حساب
-              </button>
-            </div>
-          )}
         </div>
       )}
     </header>

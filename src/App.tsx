@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { StoreProvider } from './context/StoreContext';
@@ -6,6 +6,8 @@ import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { EmailInboxModal } from './components/ui/EmailInboxModal';
 import { CartModal } from './components/modals/CartModal';
+import { AppDownloadModal } from './components/modals/AppDownloadModal';
+import { MobileAppExperience } from './components/app/MobileAppExperience';
 
 import { HomePage } from './pages/HomePage';
 import { StorePage } from './pages/StorePage';
@@ -27,6 +29,16 @@ const MainApp: React.FC = () => {
   const [selectedArticleId, setSelectedArticleId] = useState<string>('art-1');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isAppDownloadOpen, setIsAppDownloadOpen] = useState(false);
+  const [isStandaloneApp, setIsStandaloneApp] = useState(false);
+
+  // Check if launched as PWA standalone or query ?mode=app
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('mode') === 'app' || window.matchMedia('(display-mode: standalone)').matches) {
+      setIsStandaloneApp(true);
+    }
+  }, []);
 
   const handleNavigate = (page: string, param?: string) => {
     if (page === 'article-detail' && param) {
@@ -42,6 +54,15 @@ const MainApp: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // If in PWA standalone app mode, render the full mobile app interface directly
+  if (isStandaloneApp) {
+    return (
+      <div className="h-screen w-screen overflow-hidden bg-slate-950">
+        <MobileAppExperience isStandalone={true} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
       {/* Navigation Header */}
@@ -49,6 +70,7 @@ const MainApp: React.FC = () => {
         currentPage={currentPage}
         onNavigate={handleNavigate}
         onOpenCart={() => setIsCartOpen(true)}
+        onOpenAppDownload={() => setIsAppDownloadOpen(true)}
       />
 
       {/* Main Container */}
@@ -57,6 +79,7 @@ const MainApp: React.FC = () => {
           <HomePage
             onNavigate={handleNavigate}
             onOpenProduct={handleOpenProduct}
+            onOpenAppDownload={() => setIsAppDownloadOpen(true)}
           />
         )}
 
@@ -143,6 +166,12 @@ const MainApp: React.FC = () => {
       <CartModal
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
+      />
+
+      {/* Mobile App Download & Live Simulator Modal */}
+      <AppDownloadModal
+        isOpen={isAppDownloadOpen}
+        onClose={() => setIsAppDownloadOpen(false)}
       />
     </div>
   );
