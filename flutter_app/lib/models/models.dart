@@ -6,6 +6,7 @@ class UserAccount {
   final String avatar;
   final bool isVerified;
   final String robloxUsername;
+  final String registrationSource;
 
   UserAccount({
     required this.id,
@@ -15,6 +16,7 @@ class UserAccount {
     required this.avatar,
     this.isVerified = true,
     this.robloxUsername = '',
+    this.registrationSource = 'mobile_app',
   });
 
   factory UserAccount.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class UserAccount {
       avatar: json['avatar'] ?? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
       isVerified: json['isVerified'] ?? true,
       robloxUsername: json['robloxUsername'] ?? '',
+      registrationSource: json['registrationSource'] ?? 'mobile_app',
     );
   }
 
@@ -37,6 +40,7 @@ class UserAccount {
     'avatar': avatar,
     'isVerified': isVerified,
     'robloxUsername': robloxUsername,
+    'registrationSource': registrationSource,
   };
 }
 

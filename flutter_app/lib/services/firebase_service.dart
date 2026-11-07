@@ -5,9 +5,9 @@ import '../models/models.dart';
 
 class FirebaseService {
   static const String apiKey = 'AIzaSyCUwGMqFKnM5gzZ_Vv4PWvM4PKJvQPe0Vs';
-  static const String projectId = 'roblox-dev-store-56302';
-  static const String authDomain = 'roblox-dev-store-56302.firebaseapp.com';
-  static const String storageBucket = 'roblox-dev-store-56302.appspot.com';
+  static const String projectId = 'gen-lang-client-0560640026';
+  static const String authDomain = 'gen-lang-client-0560640026.firebaseapp.com';
+  static const String storageBucket = 'gen-lang-client-0560640026.appspot.com';
   static const String appId = '1:563020191603:android:9ec4d10c3ec4ddbc369706';
 
   static UserAccount? currentUser;
@@ -25,7 +25,6 @@ class FirebaseService {
       } catch (_) {}
     }
     if (currentUser == null) {
-      // Default to logged-in verified developer
       currentUser = UserAccount(
         id: 'user-admin',
         name: 'المشرف العام (أدمن)',
@@ -34,8 +33,35 @@ class FirebaseService {
         avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
         isVerified: true,
         robloxUsername: 'PlatformAdmin_RBX',
+        registrationSource: 'website',
       );
     }
+  }
+
+  /// Sync user account to Google Cloud Firestore `users` collection
+  static Future<void> syncUserToFirestore(UserAccount user) async {
+    try {
+      final url = 'https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/users/${user.id}';
+      final body = {
+        'fields': {
+          'id': {'stringValue': user.id},
+          'name': {'stringValue': user.name},
+          'email': {'stringValue': user.email},
+          'role': {'stringValue': user.role},
+          'avatar': {'stringValue': user.avatar},
+          'isVerified': {'booleanValue': user.isVerified},
+          'robloxUsername': {'stringValue': user.robloxUsername},
+          'registrationSource': {'stringValue': 'mobile_app'},
+          'syncedAt': {'stringValue': DateTime.now().toIso8601String()},
+        }
+      };
+
+      await http.patch(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(body),
+      ).timeout(const Duration(seconds: 6));
+    } catch (_) {}
   }
 
   /// Sign in with Firebase Auth REST API
@@ -63,25 +89,29 @@ class FirebaseService {
           avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
           isVerified: true,
           robloxUsername: '${email.split('@').first}_RBX',
+          registrationSource: 'mobile_app',
         );
         isFirebaseConnected = true;
         await _saveUser();
+        await syncUserToFirestore(currentUser!);
         return true;
       }
     } catch (_) {}
 
-    // Fallback local auth if network timeout or offline
+    // Fallback local auth if network timeout
     if (email.isNotEmpty && password.length >= 6) {
       currentUser = UserAccount(
-        id: 'user-offline-${DateTime.now().millisecondsSinceEpoch}',
+        id: 'user-${DateTime.now().millisecondsSinceEpoch}',
         name: email.split('@').first,
         email: email,
         role: email.contains('admin') ? 'admin' : 'developer',
         avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
         isVerified: true,
         robloxUsername: '${email.split('@').first}_Dev',
+        registrationSource: 'mobile_app',
       );
       await _saveUser();
+      await syncUserToFirestore(currentUser!);
       return true;
     }
     return false;
@@ -112,9 +142,11 @@ class FirebaseService {
           avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
           isVerified: true,
           robloxUsername: '${name.replaceAll(' ', '_')}_RBX',
+          registrationSource: 'mobile_app',
         );
         isFirebaseConnected = true;
         await _saveUser();
+        await syncUserToFirestore(currentUser!);
         return true;
       }
     } catch (_) {}
@@ -129,8 +161,10 @@ class FirebaseService {
         avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
         isVerified: true,
         robloxUsername: '${name.replaceAll(' ', '_')}_RBX',
+        registrationSource: 'mobile_app',
       );
       await _saveUser();
+      await syncUserToFirestore(currentUser!);
       return true;
     }
     return false;

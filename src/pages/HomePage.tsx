@@ -32,10 +32,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenProduct, o
   const { products, articles, addToCart } = useStore();
   const { currentUser, friends } = useAuth();
 
-  const featuredGames = products.filter(p => p.type === 'roblox_game');
-  const featuredApps = products.filter(p => p.type !== 'roblox_game');
-  const featuredArticles = articles.slice(0, 3);
-  const allRecentUpdates = products.flatMap(p => p.updates).slice(0, 3);
+  const featuredGames = (products || []).filter(p => p && p.type === 'roblox_game');
+  const featuredApps = (products || []).filter(p => p && p.type !== 'roblox_game');
+  const featuredArticles = (articles || []).slice(0, 3);
+  const allRecentUpdates = (products || [])
+    .flatMap(p => p.updates || [])
+    .filter(u => u && u.id && u.title)
+    .slice(0, 3);
 
   return (
     <div className="space-y-16 py-6 text-right">

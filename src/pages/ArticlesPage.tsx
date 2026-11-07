@@ -10,7 +10,8 @@ import {
   PlusCircle,
   Tag,
   CheckCircle,
-  X
+  X,
+  Trash2
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { useAuth } from '../context/AuthContext';
@@ -21,7 +22,7 @@ interface ArticlesPageProps {
 }
 
 export const ArticlesPage: React.FC<ArticlesPageProps> = ({ onOpenArticle }) => {
-  const { articles, addArticle } = useStore();
+  const { articles, addArticle, deleteArticle } = useStore();
   const { currentUser } = useAuth();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('الكل');
@@ -193,7 +194,23 @@ export const ArticlesPage: React.FC<ArticlesPageProps> = ({ onOpenArticle }) => 
               <div className="p-6 pt-0">
                 <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400">
                   <span>{art.author.name}</span>
-                  <span>{art.readTimeMinutes} دقيقة</span>
+                  <div className="flex items-center gap-2">
+                    <span>{art.readTimeMinutes} دقيقة</span>
+                    {(currentUser?.role === 'admin' || currentUser?.id === art.author.id) && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm(`هل أنت متأكد من حذف مقال "${art.title}" نهائياً من الموقع والتطبيق؟`)) {
+                            deleteArticle(art.id);
+                          }
+                        }}
+                        className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white transition-all ml-1"
+                        title="حذف المقال"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

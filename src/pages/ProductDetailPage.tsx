@@ -194,16 +194,16 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({ product, o
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-white font-bold text-base">
             <Flame className="w-5 h-5 text-rose-500" />
-            <span>سجل التحديثات الحية ({product.updates.length})</span>
+            <span>سجل التحديثات الحية ({(product.updates || []).length})</span>
           </div>
 
-          {product.updates.length === 0 ? (
+          {(!product.updates || product.updates.length === 0) ? (
             <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-400 text-center">
               الإصدار الأولي مستقر. لم تصدر تحديثات لاحقة بعد.
             </div>
           ) : (
             <div className="space-y-3">
-              {product.updates.map((upd) => (
+              {(product.updates || []).map((upd) => (
                 <div
                   key={upd.id}
                   className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2"

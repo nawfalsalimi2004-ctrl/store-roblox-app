@@ -260,7 +260,7 @@ export const AdminDashboardPage: React.FC = () => {
             <Flame className="w-4 h-4 text-amber-400" />
           </div>
           <div className="text-2xl font-black text-white font-mono">
-            {products.reduce((acc, p) => acc + p.updates.length, 0)}
+            {products.reduce((acc, p) => acc + (p.updates?.length || 0), 0)}
           </div>
           <span className="text-[11px] text-amber-400 mt-1 block">سجلات Changelog مفعلة</span>
         </div>
@@ -389,6 +389,7 @@ export const AdminDashboardPage: React.FC = () => {
                 <tr>
                   <th className="py-3 px-3">المستخدم</th>
                   <th className="py-3 px-3">البريد الإلكتروني</th>
+                  <th className="py-3 px-3">مصدر التسجيل</th>
                   <th className="py-3 px-3">حساب روبلوكس</th>
                   <th className="py-3 px-3">الرتبة الحالية</th>
                   <th className="py-3 px-3">تعديل الصلاحيات</th>
@@ -402,6 +403,17 @@ export const AdminDashboardPage: React.FC = () => {
                       <span className="font-bold text-white">{user.name}</span>
                     </td>
                     <td className="py-3 px-3 font-mono text-slate-300">{user.email}</td>
+                    <td className="py-3 px-3">
+                      {(user as any).registrationSource === 'mobile_app' ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                          📱 تطبيق الهاتف
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                          🌐 الموقع الإلكتروني
+                        </span>
+                      )}
+                    </td>
                     <td className="py-3 px-3 font-mono text-rose-400">
                       {user.robloxUsername ? `@${user.robloxUsername}` : '—'}
                     </td>
@@ -443,41 +455,113 @@ export const AdminDashboardPage: React.FC = () => {
       {/* TAB 3: Products Management */}
       {activeTab === 'products' && (
         <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
-          <h3 className="text-base font-bold text-white">إدارة المنتجات وألعاب روبلوكس</h3>
-          <div className="space-y-3">
-            {products.map((prod) => (
-              <div
-                key={prod.id}
-                className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-4"
-              >
-                <div className="flex items-center gap-3">
-                  <img src={prod.image} alt={prod.title} className="w-12 h-12 rounded-xl object-cover" />
-                  <div>
-                    <h5 className="font-bold text-white text-sm">{prod.title}</h5>
-                    <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
-                      <span className="px-2 py-0.2 rounded bg-slate-800 text-slate-300">{prod.category}</span>
-                      <span>السعر: <strong className="text-rose-400">{prod.price === 0 ? 'مجاناً' : `$${prod.price}`}</strong></span>
-                      <span>•</span>
-                      <span>المطور: {prod.developerName}</span>
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-bold text-white">إدارة المنتجات وألعاب روبلوكس ({products.length})</h3>
+            <span className="text-[11px] text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+              ⚡ متزامن مع تطبيق الهاتف و Firebase
+            </span>
+          </div>
+          {products.length === 0 ? (
+            <div className="p-10 text-center text-slate-400 text-xs">لا توجد منتجات أو ألعاب حالياً.</div>
+          ) : (
+            <div className="space-y-3">
+              {products.map((prod) => (
+                <div
+                  key={prod.id}
+                  className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <img src={prod.image} alt={prod.title} className="w-12 h-12 rounded-xl object-cover" />
+                    <div>
+                      <h5 className="font-bold text-white text-sm">{prod.title}</h5>
+                      <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
+                        <span className="px-2 py-0.2 rounded bg-slate-800 text-slate-300">{prod.category}</span>
+                        <span>السعر: <strong className="text-rose-400">{prod.price === 0 ? 'مجاناً' : `$${prod.price}`}</strong></span>
+                        <span>•</span>
+                        <span>المطور: {prod.developerName}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      deleteProduct(prod.id);
-                      showNotice(`تم حذف المنتج "${prod.title}" بنجاح!`);
-                    }}
-                    className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold flex items-center gap-1 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    <span>حذف</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        deleteProduct(prod.id);
+                        showNotice(`تم حذف المنتج "${prod.title}" بنجاح وتحديث السحابة والتطبيق!`);
+                      }}
+                      className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold flex items-center gap-1 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>حذف</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 4: Articles Management */}
+      {activeTab === 'articles' && (
+        <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-bold text-white">إدارة مقالات وشروحات المنصة ({articles.length})</h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                أي مقال يُنشر أو يُحذف هنا ينعكس فورياً في الموقع وتطبيق الهاتف عبر Firebase Firestore
+              </p>
+            </div>
+            <span className="text-[11px] text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+              ⚡ متزامن لحظياً
+            </span>
           </div>
+
+          {articles.length === 0 ? (
+            <div className="p-12 text-center text-slate-400 text-xs space-y-2">
+              <BookOpen className="w-8 h-8 mx-auto text-slate-600" />
+              <p>لا توجد مقالات منشورة حالياً.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {articles.map((art) => (
+                <div
+                  key={art.id}
+                  className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <img src={art.coverImage} alt={art.title} className="w-12 h-12 rounded-xl object-cover" />
+                    <div>
+                      <h5 className="font-bold text-white text-sm">{art.title}</h5>
+                      <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">
+                          {art.category}
+                        </span>
+                        <span>الكاتب: {art.author?.name || 'المشرف'}</span>
+                        <span>•</span>
+                        <span>👁️ {art.views} مشاهدة</span>
+                        <span>•</span>
+                        <span>❤️ {art.likes} إعجاب</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        deleteArticle(art.id);
+                        showNotice(`تم حذف المقال "${art.title}" بنجاح من الموقع والتطبيق!`);
+                      }}
+                      className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold flex items-center gap-1 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>حذف المقال</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

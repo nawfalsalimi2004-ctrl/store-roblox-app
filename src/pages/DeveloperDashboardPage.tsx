@@ -200,7 +200,7 @@ export const DeveloperDashboardPage: React.FC = () => {
             <Flame className="w-4 h-4 text-amber-500" />
           </div>
           <div className="text-2xl font-black text-white font-mono">
-            {myProducts.reduce((acc, p) => acc + p.updates.length, 0)}
+            {myProducts.reduce((acc, p) => acc + (p.updates?.length || 0), 0)}
           </div>
           <span className="text-[11px] text-amber-400 mt-1 block">سجلات Changelog حية</span>
         </div>
@@ -290,7 +290,7 @@ export const DeveloperDashboardPage: React.FC = () => {
                     <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400 pt-1">
                       <span>اللاعبون / التحميلات: <strong className="text-white">{prod.downloads.toLocaleString()}</strong></span>
                       <span>•</span>
-                      <span>التحديثات المنشورة: <strong className="text-amber-400">{prod.updates.length}</strong></span>
+                      <span>التحديثات المنشورة: <strong className="text-amber-400">{(prod.updates || []).length}</strong></span>
                       {prod.robloxPlaceId && (
                         <>
                           <span>•</span>

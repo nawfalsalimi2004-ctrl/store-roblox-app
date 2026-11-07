@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, UserRole, DeveloperApplication, Friend, FriendRequest, ChatMessage } from '../types';
 import { initialUsers, initialFriends, initialFriendRequests } from '../data/mockData';
+import { db, saveUserToCloud, loadCloudUsers } from '../firebase/config';
+import { collection, onSnapshot } from 'firebase/firestore';
 
 interface VerificationEmailData {
   email: string;
@@ -56,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('app_current_user_v3');
-    return saved ? JSON.parse(saved) : null; // Starts logged out as requested
+    return saved ? JSON.parse(saved) : null;
   });
 
   const [friends, setFriends] = useState<Friend[]>(() => {
@@ -86,6 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [showInboxModalData, setShowInboxModalData] = useState<VerificationEmailData | null>(null);
 
+  // Local storage save
   useEffect(() => {
     localStorage.setItem('app_users_v3', JSON.stringify(users));
   }, [users]);
@@ -114,6 +117,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('app_dev_apps_v3', JSON.stringify(pendingApplications));
   }, [pendingApplications]);
 
+  // Real-time Firestore Cloud Sync for Users (Syncs Web + Mobile App Users)
+  useEffect(() => {
+    if (!db) {
+      loadCloudUsers().then(cloudUsers => {
+        if (cloudUsers.length > 0) {
+          setUsers(prev => {
+            const map = new Map<string, User>();
+            prev.forEach(u => map.set(u.id, u));
+            cloudUsers.forEach(u => map.set(u.id, { ...u } as User));
+            return Array.from(map.values());
+          });
+        }
+      });
+      return;
+    }
+
+    const unsub = onSnapshot(collection(db, 'users'), (snapshot) => {
+      if (!snapshot.empty) {
+        const cloudUsers = snapshot.docs.map(doc => ({
+          ...doc.data(),
+          id: doc.id
+        })) as User[];
+
+        setUsers(prev => {
+          const map = new Map<string, User>();
+          // Keep existing local users
+          prev.forEach(u => map.set(u.id, u));
+          // Merge with cloud users from web and mobile app
+          cloudUsers.forEach(u => map.set(u.id, { ...map.get(u.id), ...u }));
+          return Array.from(map.values());
+        });
+      }
+    }, (err) => {
+      console.warn("Firestore users listener warning:", err);
+    });
+
+    return () => unsub();
+  }, []);
+
   const login = (email: string, password?: string) => {
     const cleanEmail = email.trim().toLowerCase();
     const found = users.find(u => u.email.toLowerCase() === cleanEmail);
@@ -122,7 +164,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false, message: 'البريد الإلكتروني غير مسجل، يرجى إنشاء حساب جديد.' };
     }
 
-    // Verify password if set on user
     if (found.password && password && found.password !== password) {
       return { success: false, message: 'كلمة المرور غير صحيحة، يرجى التحقق وإعادة المحاولة.' };
     }
@@ -153,6 +194,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setUsers(prev => [newUser, ...prev]);
     setCurrentUser(newUser);
+    saveUserToCloud(newUser, 'website');
+
     return { success: true, message: 'تم إنشاء الحساب بنجاح! تم تسجيل الدخول.' };
   };
 
@@ -161,6 +204,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const updated = { ...currentUser, ...updatedData };
     setCurrentUser(updated);
     setUsers(prev => prev.map(u => u.id === currentUser.id ? updated : u));
+    saveUserToCloud(updated, (updated as any).registrationSource || 'website');
   };
 
   const addFriend = (robloxOrName: string) => {
@@ -272,6 +316,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCurrentUser(newDev);
     setActiveVerification(null);
     setShowInboxModalData(null);
+    saveUserToCloud(newDev, 'website');
 
     return {
       success: true,
@@ -295,6 +340,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (currentUser?.id === userId) {
       setCurrentUser(prev => prev ? { ...prev, role } : null);
     }
+    const target = users.find(u => u.id === userId);
+    if (target) saveUserToCloud({ ...target, role });
   };
 
   const verifyDeveloperManual = (appId: string, approve: boolean) => {
@@ -311,8 +358,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCurrentUser(null);
     setFriends(initialFriends);
     setFriendRequests(initialFriendRequests);
+    setChatMessages([]);
     setPendingApplications([]);
-    window.location.reload();
   };
 
   return (

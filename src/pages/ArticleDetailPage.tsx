@@ -11,7 +11,8 @@ import {
   Tag,
   CheckCircle,
   Copy,
-  Check
+  Check,
+  Trash2
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { useAuth } from '../context/AuthContext';
@@ -22,7 +23,7 @@ interface ArticleDetailPageProps {
 }
 
 export const ArticleDetailPage: React.FC<ArticleDetailPageProps> = ({ articleId, onBack }) => {
-  const { articles, likeArticle, addComment } = useStore();
+  const { articles, likeArticle, addComment, deleteArticle } = useStore();
   const { currentUser } = useAuth();
 
   const article = articles.find((a) => a.id === articleId);
@@ -143,6 +144,21 @@ export const ArticleDetailPage: React.FC<ArticleDetailPageProps> = ({ articleId,
                 </>
               )}
             </button>
+
+            {(currentUser?.role === 'admin' || currentUser?.id === article.author.id) && (
+              <button
+                onClick={() => {
+                  if (window.confirm(`هل أنت متأكد من حذف مقال "${article.title}" نهائياً من الموقع والتطبيق؟`)) {
+                    deleteArticle(article.id);
+                    onBack();
+                  }
+                }}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500 border border-red-500/30 text-red-400 hover:text-white text-xs font-bold transition-all"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>حذف المقال</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -181,7 +197,7 @@ export const ArticleDetailPage: React.FC<ArticleDetailPageProps> = ({ articleId,
         <div className="flex items-center justify-between border-b border-slate-800 pb-4">
           <div className="flex items-center gap-2">
             <MessageSquare className="w-5 h-5 text-rose-500" />
-            <h3 className="font-bold text-lg text-white">التعليقات والمناقشات ({article.comments.length})</h3>
+            <h3 className="font-bold text-lg text-white">التعليقات والمناقشات ({(article.comments || []).length})</h3>
           </div>
         </div>
 
@@ -214,12 +230,12 @@ export const ArticleDetailPage: React.FC<ArticleDetailPageProps> = ({ articleId,
 
         {/* Existing Comments */}
         <div className="space-y-4 pt-4">
-          {article.comments.length === 0 ? (
+          {(!article.comments || article.comments.length === 0) ? (
             <p className="text-xs text-slate-400 text-center py-6">
               كن أول من يعلق ويشارك في هذا المقال!
             </p>
           ) : (
-            article.comments.map((comment) => (
+            (article.comments || []).map((comment) => (
               <div
                 key={comment.id}
                 className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-2"
